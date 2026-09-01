@@ -66,6 +66,7 @@
 	</dependencies>
 
 	<build>
+	    <directory>${project.basedir}/target-new</directory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

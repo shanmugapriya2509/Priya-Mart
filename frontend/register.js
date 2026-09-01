@@ -25,6 +25,9 @@ function register() {
     if (email === "") {
         emailError.textContent = "Please enter email";
         valid = false;
+    } else if (!email.includes("@")) {
+        emailError.textContent = "Please enter a valid email";
+        valid = false;
     }
 
     if (password === "") {
@@ -35,43 +38,59 @@ function register() {
     if (confirmPassword === "") {
         confirmPasswordError.textContent = "Please confirm password";
         valid = false;
-    }
-
-    if (password !== "" && confirmPassword !== "" && password !== confirmPassword) {
+    } else if (password !== confirmPassword) {
         confirmPasswordError.textContent = "Passwords do not match";
         valid = false;
     }
 
-if (!valid) {
-    return;
-}
-
-fetch("http://localhost:8080/api/auth/register", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        username: username,
-        email: email,
-        password: password
-    })
-})
-.then(response => response.text())
-.then(message => {
-
-    if (message === "Registration successful!") {
-        alert("Registration successful!");
-    } 
-    else if (message === "Username already exists!") {
-        usernameError.textContent = message;
-    } 
-    else if (message === "Email already exists!") {
-        emailError.textContent = message;
+    if (!valid) {
+        return;
     }
 
-})
-.catch(error => {
-    console.error("Error:", error);
-});
+    fetch("http://localhost:8080/api/auth/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password
+        })
+    })
+      .then(response => {
+        console.log("STATUS:", response.status);
+         return response.text();
+        })   
+         .then(message => {
+
+         console.log("MESSAGE:", message);
+
+        if (message === "Registration successful!") {
+
+            alert("Registration successful!");
+
+            window.location.href = "index.html";
+
+        } else if (message === "Username already exists!") {
+
+            usernameError.textContent = message;
+
+        } else if (message === "Email already exists!") {
+
+            emailError.textContent = message;
+
+        } else {
+
+            alert(message);
+        }
+
+    })
+    .catch(error => {
+
+        console.error("Error:", error);
+
+        alert("Unable to connect to the server. Please start the backend.");
+
+    });
 }

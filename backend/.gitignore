@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+backend/src/main/resources/application.properties
+
+# Maven build files
+target/
+target-new/
+
+# Local database configuration
+src/main/resources/application.properties

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PriyaMart | Smart Shopping</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="main-header">
+
+    <div class="logo-area">
+        <h1>PriyaMart</h1>
+        <span>Smart Mini Super Market</span>
+    </div>
+
+    <div class="main-search">
+        <input
+            type="text"
+            id="searchProduct"
+            placeholder="Search for products, groceries and more"
+        >
+
+        <button class="search-btn">
+            Search
+        </button>
+    </div>
+
+    <div class="header-actions">
+
+        <div class="header-item">
+            <span>Hello,</span>
+            <strong id="welcomeUser">Account</strong>
+        </div>
+
+        <div class="header-item">
+            <span>My</span>
+            <strong>Orders</strong>
+        </div>
+
+        <div class="header-item cart-header">
+            <span>🛒</span>
+            <strong>Cart</strong>
+            <span id="cartCount">0</span>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<nav class="category-nav">
+
+    <a href="#">Home</a>
+    <a href="#products">Grocery</a>
+    <a href="#products">Snacks</a>
+    <a href="#products">Beverages</a>
+    <a href="#products">Personal Care</a>
+    <a href="#products">Household</a>
+    <a href="#products">Daily Essentials</a>
+
+    <a href="#products" class="offers-link">
+        Today's Deals
+    </a>
+
+</nav>
+
+<section class="hero-section">
+
+    <div class="hero-image">
+        <img src="images/hero-grocery.jpg.jpg"
+         alt="Fresh groceries">
+     </div>
+    <div class="hero-offer">
+
+        <span>THIS WEEK</span>
+
+        <strong>
+            SAVE
+            <br>
+            MORE
+        </strong>
+
+        <p>on daily essentials</p>
+
+    </div>
+
+</section>
+
+
+<section class="benefits">
+
+    <div class="benefit-item">
+        <span>✓</span>
+        <div>
+            <strong>Quality Products</strong>
+            <p>Products you can trust</p>
+        </div>
+    </div>
+
+    <div class="benefit-item">
+        <span>₹</span>
+        <div>
+            <strong>Smart Prices</strong>
+            <p>Shop without overspending</p>
+        </div>
+    </div>
+
+    <div class="benefit-item">
+        <span>⚡</span>
+        <div>
+            <strong>Quick Shopping</strong>
+            <p>Simple and convenient</p>
+        </div>
+    </div>
+
+    <div class="benefit-item">
+        <span>🔒</span>
+        <div>
+            <strong>Secure Account</strong>
+            <p>Your account stays protected</p>
+        </div>
+    </div>
+
+</section>
+
+
+<main class="store-container">
+
+
+<section class="category-section">
+
+    <div class="section-heading">
+
+        <div>
+            <p class="section-small">SHOP BY</p>
+            <h2>Popular Categories</h2>
+        </div>
+
+        <a href="#products">
+            View all products →
+        </a>
+
+    </div>
+
+
+    <div class="category-grid">
+
+        <div class="category-card" onclick="filterCategory('Grocery')">
+           <div class="category-image">
+                 <img src="images/grocery.jpg" alt="Grocery">
+           </div>
+            <h3>Grocery</h3>
+            <p>Daily essentials</p>
+        </div>
+
+        <div class="category-card" onclick="filterCategory('Snacks')">
+              <div class="category-image">
+                  <img src="images/snacks.jpg" alt="Snacks">
+               </div>
+            <h3>Snacks</h3>
+            <p>Something tasty</p>
+        </div>
+
+        <div class="category-card" onclick="filterCategory('Beverages')">
+        <div class="category-image">
+             <img src="images/beverages.jpg" alt="Beverages">
+        </div>  
+                  <h3>Beverages</h3>
+            <p>Stay refreshed</p>
+        </div>
+
+        <div class="category-card" onclick="filterCategory('Personal Care')">
+             <div class="category-image">
+                   <img src="images/personal-care.jpg" alt="Personal Care">
+             </div>           
+              <h3>Personal Care</h3>
+            <p>Everyday care</p>
+        </div>
+
+        <div class="category-card" onclick="filterCategory('Household')">
+         <div class="category-image">
+            <img src="images/household.jpg" alt="Household">
+        </div>   
+                 <h3>Household</h3>
+            <p>Home essentials</p>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="smart-budget">
+
+    <div class="budget-info">
+
+        <span class="budget-label">
+            PRIYAMART SMART FEATURE
+        </span>
+
+        <h2>Shop within your budget</h2>
+
+        <p>
+            Set your shopping limit and PriyaMart
+            will keep track of your spending while
+            you add products to your cart.
+        </p>
+
+    </div>
+
+
+    <div class="budget-control">
+
+        <label for="budget">
+            My shopping budget
+        </label>
+
+        <div class="budget-input-row">
+
+            <div class="rupee-input">
+                <span>₹</span>
+
+                <input
+                    type="number"
+                    id="budget"
+                    placeholder="Enter amount"
+                    min="1"
+                >
+            </div>
+
+            <button onclick="setBudget()">
+                Set Budget
+            </button>
+
+        </div>
+
+        <p id="budgetMessage"></p>
+
+        <div class="budget-summary">
+
+            <div>
+                <span>Cart Total</span>
+                <strong>
+                    ₹<span id="budgetCartTotal">0.00</span>
+                </strong>
+            </div>
+
+            <div>
+                <span>Remaining</span>
+                <strong id="remainingBudget">
+                    —
+                </strong>
+            </div>
+
+        </div>
+
+        <p id="budgetStatus"></p>
+
+    </div>
+
+</section>
+
+
+<section
+    class="products-section"
+    id="products"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <p class="section-small">
+                DISCOVER
+            </p>
+
+            <h2>
+                Featured Products
+            </h2>
+        </div>
+
+        <span id="productResultText">
+            Our everyday picks
+        </span>
+
+    </div>
+
+
+    <div id="productList" class="product-grid">
+
+        <div class="loading-products">
+            Loading products...
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="cart-section">
+
+    <div class="cart-title">
+
+        <div>
+            <p class="section-small">
+                YOUR SHOPPING
+            </p>
+
+            <h2>My Cart</h2>
+        </div>
+
+        <span class="cart-badge">
+            🛒
+        </span>
+
+    </div>
+
+
+    <div id="cartItems">
+
+        <div class="empty-cart">
+
+            <h3>Your cart is empty</h3>
+
+            <p>
+                Add products you love and they
+                will appear here.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="cart-total-area">
+
+        <div>
+
+            <span>Subtotal</span>
+
+            <h2>
+                ₹<span id="cartTotal">0.00</span>
+            </h2>
+
+        </div>
+
+        <button
+            class="checkout-btn"
+            onclick="checkout()"
+        >
+            Proceed to Checkout
+        </button>
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+<footer class="main-footer">
+
+    <div>
+
+        <h2>PriyaMart</h2>
+
+        <p>
+            Your Smart Mini Super Market
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <strong>Quick Links</strong>
+
+        <a href="#">Home</a>
+        <a href="#products">Products</a>
+        <a href="#products">Categories</a>
+
+    </div>
+
+
+    <div>
+
+        <strong>Customer Care</strong>
+
+        <p>Help & Support</p>
+        <p>Orders</p>
+        <p>Returns</p>
+
+    </div>
+
+
+    <div>
+
+        <strong>Smart Shopping</strong>
+
+        <p>
+            Better choices.
+            Better budget.
+            Better shopping.
+        </p>
+
+    </div>
+
+</footer>
+
+
+<div class="footer-bottom">
+    © 2026 PriyaMart. All rights reserved.
+</div>
+
+
+<script src="home.js"></script>
+
+</body>
+
+</html>
