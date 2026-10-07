@@ -17,19 +17,24 @@ function register() {
 
     let valid = true;
 
-    if (username === "") {
-        usernameError.textContent = "Please enter username";
-        valid = false;
-    }
+   if (username === "") {
+      usernameError.textContent = "Please enter a username";
+      valid = false;
+    } else if (username.length < 3) {
+      usernameError.textContent = "Username must have at least 3 characters";
+      valid = false;
+     } else if (/\s/.test(username)) {
+      usernameError.textContent = "Username cannot contain spaces";
+      valid = false;
+     }
 
     if (email === "") {
-        emailError.textContent = "Please enter email";
-        valid = false;
-    } else if (!email.includes("@")) {
-        emailError.textContent = "Please enter a valid email";
-        valid = false;
-    }
-
+    emailError.textContent = "Please enter your email";
+    valid = false;
+     } else if (!/^[A-Za-z0-9._%+-]+@gmail\.com$/i.test(email)) {
+    emailError.textContent = "Enter a valid Gmail address";
+    valid = false;
+      }
     if (password === "") {
         passwordError.textContent = "Please enter password";
         valid = false;
@@ -65,13 +70,16 @@ function register() {
          .then(message => {
 
          console.log("MESSAGE:", message);
+         if (message === "Registration successful!") {
 
-        if (message === "Registration successful!") {
+        const successBox = document.getElementById("registerSuccess");
 
-            alert("Registration successful!");
+        successBox.textContent = "✓ Account created successfully! Redirecting to login...";
+         successBox.classList.add("show");
 
-            window.location.href = "index.html";
-
+         setTimeout(function () {
+        window.location.href = "index.html";
+        }, 1200);
         } else if (message === "Username already exists!") {
 
             usernameError.textContent = message;
@@ -90,7 +98,36 @@ function register() {
 
         console.error("Error:", error);
 
-        alert("Unable to connect to the server. Please start the backend.");
-
+passwordError.textContent = "Server unavailable. Please try again.";
     });
+}
+const passwordInput = document.getElementById("password");
+
+passwordInput.addEventListener("input", function () {
+
+    const value = passwordInput.value;
+
+    updateRule("ruleLength", value.length >= 8);
+
+    updateRule(
+        "ruleCase",
+        /[A-Z]/.test(value) && /[a-z]/.test(value)
+    );
+
+    updateRule("ruleNumber", /[0-9]/.test(value));
+
+    updateRule("ruleSymbol", /[^A-Za-z0-9\s]/.test(value));
+});
+
+function updateRule(id, completed) {
+
+    const rule = document.getElementById(id);
+
+    if (completed) {
+        rule.textContent = "✓ " + rule.textContent.substring(2);
+        rule.classList.add("rule-done");
+    } else {
+        rule.textContent = "○ " + rule.textContent.substring(2);
+        rule.classList.remove("rule-done");
+    }
 }

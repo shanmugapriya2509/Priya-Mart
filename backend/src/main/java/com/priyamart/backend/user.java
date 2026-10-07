@@ -15,6 +15,7 @@ public class user {
     private String username;
     private String email;
     private String password;
+    private String role = "BUYER";
 
     public user() {
     }
@@ -52,4 +53,11 @@ public class user {
     public void setPassword(String password) {
         this.password = password;
     }
+    public String getRole() {
+    return role;
+   }
+
+   public void setRole(String role) {
+    this.role = role;
+}
 }

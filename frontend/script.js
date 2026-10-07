@@ -62,24 +62,23 @@ setTimeout(function()
     document.querySelector(".login-page").style.display="flex";
 },7500);
 
-function login() 
-    {
+function login() {
 
-     let username = document.getElementById("username").value.trim();
-     let password = document.getElementById("password").value;
+    let username = document.getElementById("username").value.trim();
+    let password = document.getElementById("password").value;
 
-      let usernameError = document.getElementById("usernameError");
-      let passwordError = document.getElementById("passwordError");
+    let usernameError = document.getElementById("usernameError");
+    let passwordError = document.getElementById("passwordError");
 
-      usernameError.textContent = "";
-      passwordError.textContent = "";
+    usernameError.textContent = "";
+    passwordError.textContent = "";
 
     document.getElementById("username").style.border = "";
     document.getElementById("password").style.border = "";
 
     if (username === "") {
-     usernameError.textContent = "Please enter your username or email";  
-      document.getElementById("username").style.border = "1px solid red";
+        usernameError.textContent = "Please enter your username or email";
+        document.getElementById("username").style.border = "1px solid red";
         return;
     }
 
@@ -99,27 +98,63 @@ function login()
             password: password
         })
     })
-    .then(response => response.text())
-    .then(message => {
 
-        if (message === "Login successful!") {
+    .then(async response => {
 
-       alert("Login successful!");
-       sessionStorage.setItem("loggedIn", "true");
-        sessionStorage.setItem("username", username);
-        window.location.href = "home.html";
+        const data = await response.json();
 
-     } 
-     else {
-
-            passwordError.textContent = message;
+        if (!response.ok) {
+            throw new Error(data.message || "Login failed!");
         }
 
+        return data;
     })
-    .catch(error => {
 
-        console.error("Error:", error);
-        alert("Unable to connect to the server.");
+.then(data => {
+
+    if (data.message === "Login successful!") {
+
+        const role = (data.role || "BUYER").toUpperCase();
+
+        // Save logged-in user details
+        sessionStorage.setItem("loggedIn", "true");
+        sessionStorage.setItem("userId", data.userId);
+        sessionStorage.setItem("username", data.username);
+        sessionStorage.setItem("email", data.email);
+        sessionStorage.setItem("role", role);
+
+        // Redirect based on role
+        if (role === "SELLER") {
+
+            window.location.href = "seller.html";
+
+        } else if (role === "ADMIN") {
+
+            // Temporary until admin.html is created
+            window.location.href = "home.html";
+
+        } else {
+
+        
+            window.location.href = "home.html";
+        }
+
+    } else {
+
+        passwordError.textContent =
+            data.message || "Login failed!";
+    }
+
+})
+  .catch(error => {
+
+        console.error("Login error:", error);
+
+        passwordError.textContent =
+            error.message === "Failed to fetch"
+                ? "Unable to connect to the server."
+                : error.message;
 
     });
+
 }

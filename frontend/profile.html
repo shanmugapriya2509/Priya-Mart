@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Account | PriyaMart</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="profile-header">
+
+    <div class="profile-logo"
+         onclick="window.location.href='home.html'">
+        🛒 <strong>PriyaMart</strong>
+    </div>
+
+    <button onclick="window.location.href='home.html'">
+        ← Back to Shopping
+    </button>
+
+</header>
+
+
+<main class="profile-page">
+
+    <section class="profile-title">
+
+        <p>MY ACCOUNT</p>
+
+        <h1>Profile & Delivery</h1>
+
+        <span>
+            Manage your account and delivery information.
+        </span>
+
+    </section>
+
+
+    <div class="profile-layout">
+
+        <!-- LEFT SIDE -->
+
+        <aside class="profile-sidebar">
+
+            <div class="profile-avatar">
+                <span id="profileLetter">P</span>
+            </div>
+
+            <h3 id="profileUsername">
+                PriyaMart User
+            </h3>
+
+            <p id="profileEmail">
+                customer@gmail.com
+            </p>
+
+            <div class="profile-menu">
+
+                <button class="profile-menu-active">
+                    👤 My Profile
+                </button>
+
+                <button onclick="window.location.href='orders.html'">
+                    📦 My Orders
+                </button>
+
+                <button onclick="window.location.href='wishlist.html'">
+                    ♡ Wishlist
+                </button>
+
+                <button onclick="window.location.href='home.html'">
+                    🛒 Continue Shopping
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- RIGHT SIDE -->
+
+        <section class="profile-content">
+
+            <div class="account-card">
+
+                <div class="account-card-heading">
+                    <div>
+                        <h2>Personal Information</h2>
+                        <p>Your PriyaMart account details</p>
+                    </div>
+
+                    <span class="verified-account">
+                        ✓ Account
+                    </span>
+                </div>
+
+
+                <div class="profile-info-grid">
+
+                    <div class="profile-field">
+                        <label>Username</label>
+                        <div id="accountUsername">—</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Email Address</label>
+                        <div id="accountEmail">—</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ADDRESS -->
+
+            <div class="account-card address-card">
+
+                <div class="account-card-heading">
+
+                    <div>
+                        <h2>Delivery Address</h2>
+
+                        <p>
+                            Where should we deliver your orders?
+                        </p>
+                    </div>
+
+                    <span class="address-badge">
+                        📍 Default
+                    </span>
+
+                </div>
+
+
+                <form id="addressForm">
+
+                    <div class="address-grid">
+
+                        <div class="form-group">
+                            <label>Full Name</label>
+
+                            <input
+                                type="text"
+                                id="fullName"
+                                placeholder="Enter full name"
+                                required
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Mobile Number</label>
+
+                            <input
+                                type="tel"
+                                id="phone"
+                                maxlength="10"
+                                placeholder="10-digit mobile number"
+                                required
+                            >
+                        </div>
+
+
+                        <div class="form-group full-field">
+
+                            <label>Address</label>
+
+                            <input
+                                type="text"
+                                id="addressLine"
+                                placeholder="House no, street, area"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>City</label>
+
+                            <input
+                                type="text"
+                                id="city"
+                                placeholder="City"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>State</label>
+
+                            <input
+                                type="text"
+                                id="state"
+                                placeholder="State"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>Pincode</label>
+
+                            <input
+                                type="text"
+                                id="pincode"
+                                maxlength="6"
+                                placeholder="6-digit pincode"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <p id="addressMessage"></p>
+
+
+                    <button
+                        type="submit"
+                        class="save-address-btn"
+                    >
+                        Save Delivery Address
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<script src="profile.js"></script>
+
+</body>
+</html>

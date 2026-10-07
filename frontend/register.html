@@ -17,8 +17,19 @@
          <small id="emailError"></small>
          <input type="password" id="password" placeholder="Enter password">
           <small id="passwordError"></small>
+          <div class="password-guide" id="passwordGuide">
+          <p class="password-title">Secure your account</p>
+
+          <div class="password-rules">
+        <span id="ruleLength">○ 8+ characters</span>
+             <span id="ruleCase">○ Upper & lowercase</span>
+            <span id="ruleNumber">○ One number</span>
+              <span id="ruleSymbol">○ One symbol</span>
+          </div>
+         </div>
          <input type="password" id="confirmPassword" placeholder="Confirm password">
          <small id="confirmPasswordError"></small>
+         <div id="registerSuccess" class="register-success"></div>
          <button onclick="register()">Register</button>
          <p class="login-text"> Already have an account?<a href="index.html">Login</a></p>
 

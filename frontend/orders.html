@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | PriyaMart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="orders-header">
+    <div onclick="window.location.href='home.html'" class="orders-logo">
+        🛒 <strong>PriyaMart</strong>
+    </div>
+
+    <button onclick="window.location.href='home.html'">
+        ← Continue Shopping
+    </button>
+</header>
+
+<main class="orders-page">
+
+    <div class="orders-heading">
+        <p class="section-small">YOUR PURCHASES</p>
+        <h1>My Orders</h1>
+        <p>Track and view your PriyaMart orders.</p>
+    </div>
+
+    <div id="ordersList">
+        <div class="orders-loading">
+            Loading your orders...
+        </div>
+    </div>
+
+</main>
+
+<script src="orders.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Wishlist | PriyaMart</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="main-header">
+
+    <div class="logo-area">
+        <h1>PriyaMart</h1>
+        <span>YOUR SMART MINI SUPER MARKET</span>
+    </div>
+
+    <div class="header-actions">
+
+        <div class="header-item"
+             onclick="window.location.href='home.html'">
+            <span>Continue</span>
+            <strong>Shopping</strong>
+        </div>
+
+        <button
+            class="logout-btn"
+            onclick="window.location.href='home.html'">
+            Back to Home
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="wishlist-page">
+
+    <div class="wishlist-page-heading">
+
+        <div>
+            <p class="section-small">SAVED FOR YOU</p>
+            <h2>My Wishlist ❤️</h2>
+            <p id="wishlistCountText">
+                Loading your saved products...
+            </p>
+        </div>
+
+    </div>
+
+
+    <div
+        id="wishlistProducts"
+        class="wishlist-product-grid">
+    </div>
+
+</main>
+
+
+<script src="wishlist.js"></script>
+
+</body>
+</html>
