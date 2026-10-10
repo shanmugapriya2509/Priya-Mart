@@ -1,10 +1,21 @@
 
-if (sessionStorage.getItem("loggedIn") !== "true") {
-    window.location.href = "index.html";
+
+const isGuest = sessionStorage.getItem("role") === "GUEST";
+const isCustomer =
+    sessionStorage.getItem("loggedIn") === "true" &&
+    sessionStorage.getItem("role") === "BUYER";
+
+if (!isGuest && !isCustomer) {
+    window.location.replace("index.html");
 }
 
+
 let products = [];
-let cart = [];
+let cart = JSON.parse(
+    localStorage.getItem(
+        "priyamart_cart_" + (sessionStorage.getItem("userId") || "guest")
+    ) || "[]"
+);
 let budget = 0;
 let wishlist = [];
 
@@ -12,9 +23,10 @@ let wishlist = [];
 
 const savedUsername = sessionStorage.getItem("username");
 
-if (savedUsername) {
-    document.getElementById("welcomeUser").textContent = savedUsername;
-}
+
+document.getElementById("welcomeUser").textContent =
+    isGuest ? "Guest" : (savedUsername || "Customer");
+
 
 
 fetch("http://localhost:8080/products")
@@ -63,12 +75,18 @@ fetch("http://localhost:8080/products")
 
 function toggleWishlist(productId) {
 
+    if (isGuest) {
+        alert("Please register or log in to use your wishlist.");
+        return;
+    }
+
     const userId = sessionStorage.getItem("userId");
 
     if (!userId) {
         window.location.href = "index.html";
         return;
     }
+
 
     const alreadyAdded = wishlist.includes(productId);
 
@@ -98,65 +116,87 @@ function toggleWishlist(productId) {
 }
 
 
+
 function getProductImage(product) {
-
-    // Seller/DB image available na first priority
-    if (product.image && product.image.trim() !== "") {
-        return product.image;
-    }
-
     const name = (product.name || "").toLowerCase();
     const category = (product.category || "").toLowerCase();
 
-    // FRUITS
-    if (name.includes("apple")) return "images/apple.jpg";
-    if (name.includes("banana")) return "images/banana.jpg";
-    if (name.includes("orange")) return "images/orange.jpg";
-    if (name.includes("grapes")) return "images/grapes.jpg";
-    if (name.includes("watermelon")) return "images/watermelon.jpg";
+    // Use existing product image if it is one of our files
+    const available = [
+        "biscuits.jpg", "chips.jpg", "cookies.jpg",
+        "dish-wash.jpg", "floor-cleaner.jpg",
+        "grocery.jpg", "household.jpg", "milk.jpg",
+        "orange-juice.jpg", "personal-care.jpg",
+        "rice.jpg", "shampoo.jpg", "snacks.jpg",
+        "soap.jpg", "soft-drink.jpg"
+    ];
 
-    // VEGETABLES
-    if (name.includes("tomato")) return "images/tomato.jpg";
-    if (name.includes("potato")) return "images/potato.jpg";
-    if (name.includes("onion")) return "images/onion.jpg";
-    if (name.includes("carrot")) return "images/carrot.jpg";
+    if (typeof product.image === "string") {
+        const image = product.image.trim();
+        const filename = image.split("/").pop();
 
-    // SNACKS
-    if (name.includes("potato chips")) return "images/potato-chips.jpg";
-    if (name.includes("banana chips")) return "images/banana-chips.jpg";
-    if (name.includes("murukku")) return "images/murukku.jpg";
-    if (name.includes("nachos")) return "images/nachos.jpg";
-    if (name.includes("mixture")) return "images/mixture.jpg";
+        if (available.includes(filename)) {
+            return "images/" + filename;
+        }
+    }
 
-    // DRINKS
-    if (name.includes("orange juice")) return "images/orange-juice.jpg";
-    if (name.includes("coffee")) return "images/coffee.jpg";
-    if (name.includes("tea")) return "images/tea.jpg";
+    // Match products to existing images
+    if (name.includes("rice") || category.includes("rice"))
+        return "images/rice.jpg";
 
-    // PERSONAL / HAIR
-    if (name.includes("shampoo")) return "images/shampoo.jpg";
-    if (name.includes("soap")) return "images/soap.jpg";
-    if (name.includes("toothpaste")) return "images/toothpaste.jpg";
+    if (name.includes("milk") || category.includes("dairy"))
+        return "images/milk.jpg";
 
-    // CATEGORY FALLBACK
-    if (category.includes("rice")) return "images/rice.jpg";
-    if (category.includes("dairy")) return "images/milk.jpg";
-    if (category.includes("snack")) return "images/snacks.jpg";
-    if (category.includes("beverage")) return "images/beverages.jpg";
-    if (category.includes("biscuit")) return "images/biscuits.jpg";
-    if (category.includes("personal")) return "images/personal-care.jpg";
-    if (category.includes("hair")) return "images/shampoo.jpg";
+    if (name.includes("biscuit"))
+        return "images/biscuits.jpg";
+
+    if (name.includes("cookie"))
+        return "images/cookies.jpg";
+
+    if (name.includes("chips"))
+        return "images/chips.jpg";
+
+    if (name.includes("juice"))
+        return "images/orange-juice.jpg";
+
+    if (name.includes("shampoo"))
+        return "images/shampoo.jpg";
+
+    if (name.includes("soap"))
+        return "images/soap.jpg";
+
+    if (name.includes("dish wash"))
+        return "images/dish-wash.jpg";
+
+    if (name.includes("floor cleaner"))
+        return "images/floor-cleaner.jpg";
+
+    if (name.includes("soft drink") || name.includes("cola"))
+        return "images/soft-drink.jpg";
+
+    if (category.includes("snack"))
+        return "images/snacks.jpg";
+
+    if (category.includes("personal"))
+        return "images/personal-care.jpg";
+
     if (category.includes("home") || category.includes("laundry"))
         return "images/household.jpg";
 
     return "images/grocery.jpg";
 }
 
+
 function displayProducts(productArray) {
 
     const productList = document.getElementById("productList");
     productList.innerHTML = "";
+     
 
+    document.querySelectorAll("[id^='rating-']").forEach(box => {
+    const productId = Number(box.id.replace("rating-", ""));
+    loadProductRating(productId);
+});
     if (productArray.length === 0) {
         productList.innerHTML = "<p>No products found.</p>";
         return;
@@ -195,8 +235,9 @@ function displayProducts(productArray) {
 
                 <img
                     src="${imagePath}"
-                    onerror="this.onerror=null; this.src='images/product-placeholder.jpg';"
+                    onerror="this.onerror=null; this.src='images/grocery.jpg';"
                     alt="${product.name}"
+                    onclick="openProductDetails(${product.id})"
                 >
 
             </div>
@@ -213,11 +254,16 @@ function displayProducts(productArray) {
                     ${product.brand || "PriyaMart"}
                     ${product.unit ? ` • ${product.unit}` : ""}
                 </p>
+<div class="product-rating" id="rating-${product.id}">
+    <span>☆ New</span>
+    <small>No reviews yet</small>
+</div>
+                
+            <button class="review-btn"
+               onclick='openReviewPopup(${product.id}, ${JSON.stringify(product.name)})'>
+                 ⭐ Write Review
+         </button>
 
-                <div class="product-rating">
-                    <span>★ 4.5</span>
-                    <small>PriyaMart Choice</small>
-                </div>
 
                 <div class="price-section">
 
@@ -318,8 +364,13 @@ function addToCart(id) {
     }
 
     displayCart();
+    savePriyaMartCart();
 }
 function displayCart() {
+    localStorage.setItem(
+    "priyamart_cart_" + (sessionStorage.getItem("userId") || "guest"),
+    JSON.stringify(cart)
+);
     const cartItems = document.getElementById("cartItems");
     const cartTotal = document.getElementById("cartTotal");
 
@@ -399,8 +450,6 @@ function displayCart() {
         .textContent = total.toFixed(2);
 
     checkBudget(total);
-
-    displayCart();
     displayProducts(products);
 }
 function increaseQuantity(index) {
@@ -510,52 +559,24 @@ function checkBudget(total) {
             "#ff7676";
     }
 }
-document
-    .getElementById("searchProduct")
-    .addEventListener("input", function () {
 
-        const search =
-            this.value.toLowerCase().trim();
+const searchInput = document.getElementById("searchProduct");
 
+if (searchInput) {
+    searchInput.addEventListener("input", function () {
 
-        const filteredProducts =
-            products.filter(product => {
+        const search = this.value.toLowerCase().trim();
 
-                const name =
-                    product.name
-                        ? product.name.toLowerCase()
-                        : "";
+        const filteredProducts = products.filter(product => {
+            const name = (product.name || "").toLowerCase();
+            const category = (product.category || "").toLowerCase();
 
-                const category =
-                    product.category
-                        ? product.category.toLowerCase()
-                        : "";
-
-                return (
-                    name.includes(search) ||
-                    category.includes(search)
-                );
-            });
-
+            return name.includes(search) || category.includes(search);
+        });
 
         displayProducts(filteredProducts);
-
-
-        const resultText =
-            document.getElementById("productResultText");
-
-        if (search === "") {
-
-            resultText.textContent =
-                "Our everyday picks";
-
-        } else {
-
-            resultText.textContent =
-                `${filteredProducts.length} product(s) found`;
-        }
     });
-
+}
 
 function filterCategory(category) {
 
@@ -591,74 +612,168 @@ function scrollToProducts() {
         });
 }
 
+
 function checkout() {
+    const role = sessionStorage.getItem("role");
+
+    if (role === "GUEST" || role !== "BUYER") {
+        alert("Please login as a customer to checkout.");
+        window.location.href = "login.html";
+        return;
+    }
 
     if (cart.length === 0) {
         alert("Your cart is empty!");
         return;
     }
 
-    let total = 0;
-
-    cart.forEach(product => {
-        total += Number(product.price) * product.quantity;
-    });
+    const total = cart.reduce(
+        (sum, product) => sum + Number(product.price) * product.quantity,
+        0
+    );
 
     if (budget > 0 && total > budget) {
-        alert("Your cart exceeds your shopping budget.");
+        alert("Your cart exceeds your shopping budget!");
         return;
     }
 
+    document.getElementById("checkoutSection").style.display = "block";
+
+    document.getElementById("checkoutSection")
+        .scrollIntoView({ behavior: "smooth" });
+
+    loadCheckoutAddress();
+}
+
+async function loadCheckoutAddress() {
     const userId = sessionStorage.getItem("userId");
+    if (!userId) return;
 
-    if (!userId) {
-        window.location.href = "index.html";
-        return;
-    }
-
-    const orderData = {
-        userId: Number(userId),
-
-        items: cart.map(product => ({
-            productId: product.id,
-            productName: product.name,
-            price: Number(product.price),
-            quantity: product.quantity
-        }))
-    };
-
-    fetch("http://localhost:8080/api/orders", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => {
-
-        if (!response.ok) {
-            throw new Error("Unable to place order");
-        }
-
-        return response.json();
-    })
-    .then(order => {
-
-        alert(
-            "Order placed successfully! Order ID: " +
-            order.id
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8080/api/address/${userId}`,
+            { credentials: "include" }
         );
 
+        if (!response.ok) return;
+
+        const address = await response.json();
+
+        document.getElementById("deliveryName").value = address.fullName || "";
+        document.getElementById("deliveryPhone").value = address.phone || "";
+        document.getElementById("deliveryAddress").value = address.addressLine || "";
+        document.getElementById("deliveryCity").value = address.city || "";
+        document.getElementById("deliveryState").value = address.state || "";
+        document.getElementById("deliveryPincode").value = address.pincode || "";
+
+    } catch (error) {
+        console.error("Unable to load address:", error);
+    }
+}
+
+async function confirmOrder(event) {
+    event.preventDefault();
+
+    const userId = Number(sessionStorage.getItem("userId"));
+    const button = document.querySelector("#checkoutForm button[type='submit']");
+
+    if (!userId || cart.length === 0) {
+        alert("Please login and add products to your cart.");
+        return;
+    }
+
+    const addressData = {
+        fullName: document.getElementById("deliveryName").value.trim(),
+        phone: document.getElementById("deliveryPhone").value.trim(),
+        addressLine: document.getElementById("deliveryAddress").value.trim(),
+        city: document.getElementById("deliveryCity").value.trim(),
+        state: document.getElementById("deliveryState").value.trim(),
+        pincode: document.getElementById("deliveryPincode").value.trim()
+    };
+
+    if (Object.values(addressData).some(value => !value)) {
+        alert("Please fill all delivery address fields.");
+        return;
+    }
+
+    if (!/^[0-9]{10}$/.test(addressData.phone) ||
+        !/^[0-9]{6}$/.test(addressData.pincode)) {
+        alert("Enter a valid phone number and pincode.");
+        return;
+    }
+
+    const total = cart.reduce(
+        (sum, product) => sum + Number(product.price) * product.quantity,
+        0
+    );
+
+    if (budget > 0 && total > budget) {
+        alert("Your cart exceeds your shopping budget!");
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Placing Order...";
+
+    try {
+        // First save the delivery address
+        const addressResponse = await fetch(
+            `http://127.0.0.1:8080/api/address/${userId}`,
+            {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(addressData)
+            }
+        );
+
+        const savedAddress = await addressResponse.json();
+
+        if (!addressResponse.ok) {
+            throw new Error(savedAddress.message || "Could not save address.");
+        }
+
+        // Then place the order using the saved address ID
+        const orderData = {
+            userId: userId,
+            addressId: savedAddress.id,
+            paymentMethod: "COD",
+            items: cart.map(product => ({
+                productId: product.id,
+                productName: product.name,
+                price: Number(product.price),
+                quantity: product.quantity
+            }))
+        };
+
+        const orderResponse = await fetch(
+            "http://127.0.0.1:8080/api/orders",
+            {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            }
+        );
+
+        const order = await orderResponse.json();
+
+        if (!orderResponse.ok) {
+            throw new Error(order.message || "Order failed.");
+        }
+
+showOrderSuccess(order.id, order.totalAmount);
         cart = [];
-
         displayCart();
-    })
-    .catch(error => {
 
-        console.error("Checkout error:", error);
+        document.getElementById("checkoutSection").style.display = "none";
 
-        alert("Unable to place order. Please try again.");
-    });
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        button.disabled = false;
+        button.textContent = "Confirm Order";
+    }
 }
 
 function logout() {
@@ -671,3 +786,342 @@ function logout() {
 }
 
 displayCart();
+function searchProducts() {
+    const search = document.getElementById("searchProduct")
+        .value.toLowerCase().trim();
+
+    const results = products.filter(product =>
+        (product.name || "").toLowerCase().includes(search) ||
+        (product.category || "").toLowerCase().includes(search)
+    );
+
+    displayProducts(results);
+
+    document.getElementById("products").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+
+function showOrderSuccess(orderId, totalAmount) {
+    document.getElementById("successOrderId").textContent =
+        "#PM-" + String(orderId).padStart(4, "0");
+
+    document.getElementById("successOrderTotal").textContent =
+        "₹" + Number(totalAmount).toFixed(2);
+
+    document.getElementById("orderSuccessModal")
+        .classList.add("show");
+
+    playOrderSuccessSound();
+}
+
+function closeOrderSuccess() {
+    document.getElementById("orderSuccessModal")
+        .classList.remove("show");
+}
+
+function playOrderSuccessSound() {
+    try {
+        const AudioContextClass =
+            window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextClass) return;
+
+        const audio = new AudioContextClass();
+
+        if (audio.state === "suspended") {
+            audio.resume();
+        }
+
+        const notes = [
+            { frequency: 523.25, start: 0, duration: 0.15 },
+            { frequency: 659.25, start: 0.16, duration: 0.15 },
+            { frequency: 783.99, start: 0.32, duration: 0.28 }
+        ];
+
+        notes.forEach(note => {
+            const oscillator = audio.createOscillator();
+            const gain = audio.createGain();
+
+            oscillator.type = "sine";
+            oscillator.frequency.value = note.frequency;
+
+            gain.gain.setValueAtTime(
+                0.0001,
+                audio.currentTime + note.start
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.12,
+                audio.currentTime + note.start + 0.02
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                audio.currentTime + note.start + note.duration
+            );
+
+            oscillator.connect(gain);
+            gain.connect(audio.destination);
+
+            oscillator.start(audio.currentTime + note.start);
+            oscillator.stop(
+                audio.currentTime + note.start + note.duration
+            );
+        });
+
+        setTimeout(() => audio.close(), 1200);
+
+    } catch (error) {
+        console.log("Success sound unavailable:", error);
+    }
+
+    
+/* Save cart so cart.html can access it */
+
+const PRIYAMART_CART_KEY = "priyamart_cart_" +
+    (sessionStorage.getItem("userId") || "guest");
+
+const savedPriyaMartCart =
+    localStorage.getItem(PRIYAMART_CART_KEY);
+
+if (savedPriyaMartCart) {
+    try {
+        cart = JSON.parse(savedPriyaMartCart);
+        displayCart();
+    } catch (error) {
+        console.error("Unable to restore cart:", error);
+    }
+}
+
+function savePriyaMartCart() {
+    localStorage.setItem(
+        PRIYAMART_CART_KEY,
+        JSON.stringify(cart)
+    );
+}
+
+/* Save whenever cart changes */
+const originalDisplayCart = displayCart;
+
+displayCart = function () {
+    savePriyaMartCart();
+    originalDisplayCart();
+};
+
+/* Fix quantity updates */
+changeProductQuantity = function (productId, change) {
+    const item = cart.find(product => product.id === productId);
+    if (!item) return;
+
+    const nextQuantity = item.quantity + change;
+
+    if (change > 0 &&
+        item.stock != null &&
+        nextQuantity > Number(item.stock)) {
+        alert("Maximum available stock reached.");
+        return;
+    }
+
+    if (nextQuantity <= 0) {
+        cart = cart.filter(product => product.id !== productId);
+    } else {
+        item.quantity = nextQuantity;
+    }
+
+    displayCart();
+};
+
+}
+
+
+let selectedReviewProductId = null;
+
+async function openReviewPopup(productId, productName) {
+    selectedReviewProductId = productId;
+
+    document.getElementById("reviewProductName").textContent = productName;
+    document.getElementById("reviewComment").value = "";
+
+    document.getElementById("reviewPopup").style.display = "flex";
+
+    await loadProductReviews(productId);
+}
+
+function closeReviewPopup() {
+
+
+    document.getElementById("reviewPopup").style.display = "none";
+}
+
+async function loadProductReviews(productId) {
+    const reviewList = document.getElementById("reviewList");
+    reviewList.textContent = "Loading reviews...";
+
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8080/api/reviews/${productId}`,
+            { credentials: "include" }
+        );
+
+        if (!response.ok) throw new Error("Failed to load reviews");
+
+        const reviews = await response.json();
+        reviewList.replaceChildren();
+
+        if (reviews.length === 0) {
+            reviewList.textContent = "No reviews yet.";
+            return;
+        }
+
+        reviews.forEach(review => {
+            const item = document.createElement("p");
+            item.textContent =
+                `${"⭐".repeat(review.rating)} — ${review.comment}`;
+            reviewList.appendChild(item);
+        });
+
+    } catch (error) {
+        reviewList.textContent = "Unable to load reviews.";
+    }
+}
+
+async function submitReview() {
+    if (selectedReviewProductId === null) return;
+
+    const rating = Number(
+        document.getElementById("reviewRating").value
+    );
+
+    const comment = document
+        .getElementById("reviewComment")
+        .value.trim();
+
+    if (!comment) {
+        alert("Please write your review!");
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8080/api/reviews/${selectedReviewProductId}`,
+            {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ rating, comment })
+            }
+        );
+
+        if (!response.ok) {
+            const error = await response.json();
+            alert(error.message || "Unable to submit review");
+            return;
+        }
+
+        alert("Review submitted successfully! ⭐");
+        document.getElementById("reviewComment").value = "";
+
+        await loadProductReviews(selectedReviewProductId);
+
+    } catch (error) {
+        alert("Cannot connect to the backend.");
+    }
+}
+
+async function loadProductRating(productId) {
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8080/api/reviews/${productId}/summary`
+        );
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const box = document.getElementById(`rating-${productId}`);
+
+        if (!box) return;
+
+        if (data.count === 0) {
+            box.textContent = "☆ No reviews yet";
+        } else {
+            box.textContent =
+                `⭐ ${data.average.toFixed(1)} (${data.count} reviews)`;
+        }
+    } catch (error) {
+        console.error("Rating loading failed:", error);
+    }
+}
+
+let selectedProduct = null;
+let currentImageIndex = 0;
+let productImages = [];
+
+function openProductDetails(productId) {
+    selectedProduct = allProducts.find(
+        p => String(p.id) === String(productId)
+    );
+
+    if (!selectedProduct) {
+        alert("Product not found");
+        return;
+    }
+
+    const p = selectedProduct;
+
+    // Main product image
+    const mainImage = getProductImage(p);
+
+    // Additional images (if available)
+    productImages = [
+        mainImage,
+        ...(Array.isArray(p.images) ? p.images : [])
+    ].filter(Boolean);
+
+    currentImageIndex = 0;
+
+    document.getElementById("detailProductImage").src =
+        productImages[0];
+
+    document.getElementById("detailProductName").textContent =
+        p.name || "Product";
+
+    document.getElementById("detailProductCategory").textContent =
+        p.category || "";
+
+    document.getElementById("detailProductPrice").textContent =
+        "₹" + p.price;
+
+    document.getElementById("detailProductStock").textContent =
+        p.stock > 0 ? "In Stock" : "Out of Stock";
+
+    document.getElementById("detailProductDescription").textContent =
+        p.description || "";
+
+    document.getElementById("detailProductRating").textContent =
+        "⭐ Customer Reviews";
+
+    document.getElementById("productDetailsPopup").style.display =
+        "flex";
+}
+
+function closeProductDetails() {
+    document.getElementById("productDetailsPopup").style.display =
+        "none";
+}
+
+function changeProductImage(direction) {
+    if (productImages.length === 0) return;
+
+    currentImageIndex =
+        (currentImageIndex + direction + productImages.length)
+        % productImages.length;
+
+    document.getElementById("detailProductImage").src =
+        productImages[currentImageIndex];
+}
+
+

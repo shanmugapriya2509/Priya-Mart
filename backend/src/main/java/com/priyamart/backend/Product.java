@@ -16,6 +16,11 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    
+    @Column(name = "seller_id")
+    private Long sellerId;
+
+
     private String name;
     private double price;
     private String category;
@@ -34,7 +39,22 @@ private double originalPrice;
 private int discount;
 
 private String image;
+@jakarta.persistence.ElementCollection
+@jakarta.persistence.CollectionTable(
+    name = "product_images",
+    joinColumns = @jakarta.persistence.JoinColumn(name = "product_id")
+)
+@jakarta.persistence.Column(name = "image_url", length = 2000)
+@jakarta.persistence.OrderColumn(name = "image_order")
+private java.util.List<String> images = new java.util.ArrayList<>();
 
+public java.util.List<String> getImages() {
+    return images;
+}
+
+public void setImages(java.util.List<String> images) {
+    this.images = images;
+}
     public Product() {
     }
 
@@ -132,4 +152,13 @@ public String getImage() {
 public void setImage(String image) {
     this.image = image;
 }
+
+public Long getSellerId() {
+    return sellerId;
+}
+
+public void setSellerId(Long sellerId) {
+    this.sellerId = sellerId;
+}
+
 }

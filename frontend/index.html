@@ -16,11 +16,30 @@
         <div class="login-box">
             <h1>WELCOME BACK!!!!</h1>
             <p>Login to PriyaMart</p>
+            
+        <div class="login-role-selector">
+             <label for="loginRole">Login as</label>
+
+          <select id="loginRole">
+           <option value="BUYER">Customer</option>
+           <option value="SELLER">Seller</option>
+          </select>
+       </div>
+
             <input type="text" id="username" placeholder="Enter your username or email">
              <small id="usernameError"></small>
             <input type="password" id="password" placeholder="Enter password">
             <small id="passwordError"></small>
             <button onclick="login()">Login</button>
+            
+         
+          <button type="button" class="guest-btn"
+            onclick="sessionStorage.clear(); sessionStorage.setItem('role', 'GUEST'); sessionStorage.setItem('loggedIn', 'false'); window.location.href='home.html';">
+             Continue as Guest
+          </button>
+
+
+
             <p class="register-text">
                 Don't have an account?
                 <a href="register.html">Register</a>

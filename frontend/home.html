@@ -59,9 +59,6 @@
 
     </div>
 
-
-    <!-- SEARCH -->
-
     <div class="main-search">
 
         <span class="search-icon">⌕</span>
@@ -72,19 +69,12 @@
             placeholder="Search for products, groceries and more..."
         >
 
-        <button class="search-btn">
-            Search
-        </button>
+        <button type="button" onclick="searchProducts()">Search</button>
 
     </div>
 
 
-    <!-- HEADER ACTIONS -->
-
     <div class="header-actions">
-
-
-        <!-- ACCOUNT -->
 
         <div
             class="header-item account-item"
@@ -127,29 +117,16 @@
 
         </div>
 
+  
+<div class="header-item cart-header"
+     onclick="window.location.href='cart.html'">
 
-        <!-- CART -->
+    <span>🛒</span>
+    <strong>Cart</strong>
+    <span id="cartCount">0</span>
 
-        <div
-            class="header-item cart-header"
-            onclick="
-                document.getElementById('cart')
-                .scrollIntoView({behavior:'smooth'})
-            "
-        >
+</div>
 
-            <span>🛒</span>
-
-            <strong>Cart</strong>
-
-            <span id="cartCount">
-                0
-            </span>
-
-        </div>
-
-
-        <!-- LOGOUT -->
 
         <button
             class="logout-btn"
@@ -422,19 +399,7 @@
 
 </section>
 
-
-
-<!-- =========================
-     MAIN STORE
-========================= -->
-
 <main class="store-container">
-
-
-
-<!-- =========================
-     POPULAR CATEGORIES
-========================= -->
 
 <section class="category-section">
 
@@ -549,11 +514,6 @@
             </p>
 
         </div>
-
-
-
-        <!-- PERSONAL CARE -->
-
         <div
             class="category-card"
             onclick="filterCategory('Personal Care')"
@@ -577,11 +537,6 @@
             </p>
 
         </div>
-
-
-
-        <!-- HOME CARE -->
-
         <div
             class="category-card"
             onclick="filterCategory('Home Care')"
@@ -605,11 +560,6 @@
             </p>
 
         </div>
-
-
-
-        <!-- DAIRY -->
-
         <div
             class="category-card"
             onclick="filterCategory('Dairy')"
@@ -633,11 +583,6 @@
             </p>
 
         </div>
-
-
-
-        <!-- BISCUITS -->
-
         <div
             class="category-card"
             onclick="filterCategory('Biscuits & Cookies')"
@@ -667,13 +612,6 @@
 
 
 </section>
-
-
-
-<!-- =========================
-     SMART BUDGET
-========================= -->
-
 <section class="smart-budget">
 
 
@@ -780,12 +718,6 @@
 
 </section>
 
-
-
-<!-- =========================
-     PRODUCTS
-========================= -->
-
 <section
     class="products-section"
     id="products"
@@ -831,15 +763,10 @@
 
 </section>
 
-
-
-<!-- =========================
-     CART
-========================= -->
-
 <section
     class="cart-section"
     id="cart"
+    style="display:none"
 >
 
 
@@ -922,14 +849,104 @@
 
 </section>
 
+<section id="checkoutSection" class="cart-section" style="display:none; margin-top:25px;">
+
+    <h2>🚚 Delivery Address</h2>
+    <p>Enter your delivery details to complete your order.</p>
+
+    <form id="checkoutForm" onsubmit="confirmOrder(event)">
+
+        <input id="deliveryName" type="text"
+               placeholder="Full Name" required>
+
+        <input id="deliveryPhone" type="tel"
+               placeholder="10-digit Mobile Number"
+               pattern="[0-9]{10}" maxlength="10" required>
+
+        <textarea id="deliveryAddress"
+                  placeholder="Door No., Street, Area"
+                  required></textarea>
+
+        <input id="deliveryCity" type="text"
+               placeholder="City" required>
+
+        <input id="deliveryState" type="text"
+               placeholder="State" required>
+
+        <input id="deliveryPincode" type="text"
+               placeholder="6-digit Pincode"
+               pattern="[0-9]{6}" maxlength="6" required>
+
+        <h3>💳 Payment Method</h3>
+
+       
+<div class="cod-payment-box">
+    <div class="cod-payment-heading">
+        <span>🚚</span>
+        <div>
+            <h3>Cash on Delivery</h3>
+            <p>Pay only when your order arrives.</p>
+        </div>
+        <span class="cod-selected">✓ Selected</span>
+    </div>
+
+    <div class="cod-benefits">
+        <p>✓ No advance payment required</p>
+        <p>✓ Pay after receiving your products</p>
+        <p>✓ No extra Cash on Delivery charges</p>
+    </div>
+
+    <div class="cod-fee">
+        <span>Cash on Delivery Fee</span>
+        <strong>FREE — ₹0.00</strong>
+    </div>
+
+    <input type="hidden" name="paymentMethod" value="COD">
+</div>
+
+
+        <br><br>
+
+        <button type="submit" class="checkout-btn">
+            Confirm Order
+        </button>
+
+    </form>
+</section>
+<div id="orderSuccessModal" class="order-success-overlay">
+    <div class="order-success-card">
+        <div class="success-checkmark">✓</div>
+
+        <h2>Order Confirmed!</h2>
+        <p class="success-subtitle">
+            Thank you for shopping with PriyaMart!
+        </p>
+
+        <div class="success-order-info">
+            <p>Order ID: <strong id="successOrderId"></strong></p>
+            <p>Order Total: <strong id="successOrderTotal"></strong></p>
+            <p>Payment: <strong>Cash on Delivery</strong></p>
+            <p>COD Charges: <strong>FREE ₹0</strong></p>
+        </div>
+
+        <p class="success-delivery-text">
+            🚚 Pay only when your products arrive.
+            No advance payment required!
+        </p>
+
+        <button onclick="window.location.href='orders.html'">
+            View My Orders
+        </button>
+
+        <button class="continue-shopping-btn"
+                onclick="closeOrderSuccess()">
+            Continue Shopping
+        </button>
+    </div>
+</div>
+
 
 </main>
-
-
-
-<!-- =========================
-     FOOTER
-========================= -->
 
 <footer class="main-footer">
 
@@ -1023,7 +1040,91 @@
 
 
 <script src="home.js"></script>
+<div id="reviewPopup" style="display:none; position:fixed; inset:0;
+background:rgba(0,0,0,0.6); z-index:9999;
+align-items:center; justify-content:center;">
 
+  <div style="background:white; padding:25px; border-radius:15px;
+  width:90%; max-width:420px;">
+
+    <h2>⭐ Write a Review</h2>
+
+    <h3 id="reviewProductName"></h3>
+
+    <label>Choose Rating</label>
+    <select id="reviewRating" style="width:100%; padding:10px;">
+      <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
+      <option value="4">⭐⭐⭐⭐ - Good</option>
+      <option value="3">⭐⭐⭐ - Average</option>
+      <option value="2">⭐⭐ - Poor</option>
+      <option value="1">⭐ - Very Poor</option>
+    </select>
+
+    <textarea id="reviewComment"
+      placeholder="Write your honest review..."
+      maxlength="1000"
+      style="width:100%; padding:10px; margin-top:15px;"
+      rows="4"></textarea>
+
+    <button type="button" onclick="submitReview()">
+      Submit Review
+    </button>
+
+    <button type="button" onclick="closeReviewPopup()">
+      Cancel
+    </button>
+
+    <div id="reviewList"></div>
+
+  </div>
+</div>
+
+<div id="productDetailsPopup" class="product-modal"
+     style="display:none;">
+
+    <div class="product-modal-box">
+
+        <button class="product-modal-close"
+                onclick="closeProductDetails()">
+            ✕
+        </button>
+
+        <div class="product-modal-layout">
+
+            <!-- Swipeable Images -->
+            <div class="product-gallery">
+                <button onclick="changeProductImage(-1)"
+                        class="gallery-arrow">❮</button>
+
+                <img id="detailProductImage"
+                     src="images/grocery.jpg"
+                     alt="Product image">
+
+                <button onclick="changeProductImage(1)"
+                        class="gallery-arrow">❯</button>
+            </div>
+            <div class="product-info">
+                <p id="detailProductCategory"></p>
+                <h2 id="detailProductName"></h2>
+                <p id="detailProductRating"></p>
+                <h2 id="detailProductPrice"></h2>
+                <p id="detailProductStock"></p>
+                <p id="detailProductDescription"></p>
+
+                <button id="detailAddToCart"
+                        class="add-cart-btn">
+                    🛒 Add to Cart
+                </button>
+
+                <button id="detailWriteReview"
+                        class="review-btn">
+                    ⭐ Write a Review
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 </body>
 

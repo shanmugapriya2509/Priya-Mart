@@ -3924,3 +3924,402 @@ body {
         gap: 20px;
     }
 }
+
+
+.account-type {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.account-type label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.account-type select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.account-type select:focus {
+    outline: none;
+    border-color: #ffbf00;
+}
+
+.login-role-selector {
+    width: 100%;
+    margin: 15px 0;
+    text-align: left;
+}
+
+.login-role-selector label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.login-role-selector select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.login-role-selector select:focus {
+    outline: none;
+    border-color: #ffbf00;
+}
+
+
+.guest-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: white;
+    color: #333;
+    border: 2px solid #ffc107;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* PROFESSIONAL CASH ON DELIVERY SECTION */
+
+.cod-payment-box {
+    background: #ffffff;
+    border: 2px solid #16a34a;
+    border-radius: 16px;
+    padding: 22px;
+    margin: 18px 0;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
+}
+
+.cod-payment-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cod-payment-heading > span:first-child {
+    font-size: 30px;
+}
+
+.cod-payment-heading h3 {
+    margin: 0 0 5px;
+    color: #18212f;
+}
+
+.cod-payment-heading p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.cod-selected {
+    margin-left: auto;
+    color: #15803d;
+    background: #dcfce7;
+    padding: 7px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.cod-benefits {
+    margin-top: 18px;
+    padding: 14px;
+    background: #f0fdf4;
+    border-radius: 10px;
+}
+
+.cod-benefits p {
+    color: #166534;
+    font-size: 14px;
+    margin: 8px 0;
+}
+
+.cod-fee {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 15px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+.cod-fee strong {
+    color: #15803d;
+}
+
+@media (max-width: 480px) {
+    .cod-payment-heading {
+        flex-wrap: wrap;
+    }
+
+    .cod-selected {
+        margin-left: 0;
+    }
+}
+
+/* ORDER CONFIRMATION ANIMATION */
+
+.order-success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.order-success-overlay.show {
+    display: flex;
+}
+
+.order-success-card {
+    width: 100%;
+    max-width: 440px;
+    background: white;
+    padding: 35px 25px;
+    border-radius: 22px;
+    text-align: center;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
+    animation: successPop 0.5s ease-out;
+}
+
+.success-checkmark {
+    width: 95px;
+    height: 95px;
+    background: #16a34a;
+    color: white;
+    border-radius: 50%;
+    font-size: 60px;
+    font-weight: bold;
+    line-height: 95px;
+    margin: 0 auto 22px;
+    animation: checkBounce 0.7s ease-out;
+}
+
+.order-success-card h2 {
+    color: #15803d;
+    margin-bottom: 10px;
+    font-size: 27px;
+}
+
+.success-subtitle {
+    color: #64748b;
+    margin-bottom: 22px;
+}
+
+.success-order-info {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+.success-order-info p {
+    margin: 10px 0;
+}
+
+.success-delivery-text {
+    color: #166534;
+    background: #f0fdf4;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.order-success-card button {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: #16a34a;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.order-success-card .continue-shopping-btn {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+@keyframes successPop {
+    from {
+        opacity: 0;
+        transform: scale(0.75) translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes checkBounce {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .order-success-card,
+    .success-checkmark {
+        animation: none;
+    }
+}
+
+/* Professional Review Button */
+.review-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    padding: 8px 14px;
+    margin: 10px 0;
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: none;
+    transition: all 0.2s ease;
+}
+
+.review-btn:hover {
+    background: #f8fafc;
+    border-color: #16a34a;
+    color: #15803d;
+}
+
+
+/* Professional Product Details Popup */
+
+.product-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.product-modal-box {
+    background: white;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 18px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+}
+
+.product-modal-close {
+    position: absolute;
+    right: 18px;
+    top: 12px;
+    border: none;
+    background: #f2f2f2;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.product-modal-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 35px;
+    align-items: center;
+}
+
+.product-gallery {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #f8faf8;
+    border-radius: 15px;
+    padding: 20px 10px;
+}
+
+.product-gallery img {
+    width: 75%;
+    height: 300px;
+    object-fit: contain;
+}
+
+.gallery-arrow {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.gallery-arrow:hover {
+    background: #e8f5e9;
+}
+
+.product-info h2 {
+    margin: 12px 0;
+    color: #222;
+}
+
+.product-info p {
+    margin: 10px 0;
+    color: #666;
+}
+
+.product-info button {
+    padding: 12px 20px;
+    margin: 8px 8px 0 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+@media (max-width: 650px) {
+    .product-modal-layout {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .product-modal-box {
+        padding: 20px;
+    }
+
+    .product-gallery img {
+        height: 220px;
+    }
+}

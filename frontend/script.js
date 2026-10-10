@@ -62,34 +62,30 @@ setTimeout(function()
     document.querySelector(".login-page").style.display="flex";
 },7500);
 
+
 function login() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+    const selectedRole = document.getElementById("loginRole").value;
 
-    let username = document.getElementById("username").value.trim();
-    let password = document.getElementById("password").value;
-
-    let usernameError = document.getElementById("usernameError");
-    let passwordError = document.getElementById("passwordError");
+    const usernameError = document.getElementById("usernameError");
+    const passwordError = document.getElementById("passwordError");
 
     usernameError.textContent = "";
     passwordError.textContent = "";
 
-    document.getElementById("username").style.border = "";
-    document.getElementById("password").style.border = "";
-
-    if (username === "") {
-        usernameError.textContent = "Please enter your username or email";
-        document.getElementById("username").style.border = "1px solid red";
+    if (!username) {
+        usernameError.textContent = "Please enter your username or email.";
         return;
     }
 
-    if (password === "") {
-        passwordError.textContent = "Please enter your password";
-        document.getElementById("password").style.border = "1px solid red";
+    if (!password) {
+        passwordError.textContent = "Please enter your password.";
         return;
     }
-
-    fetch("http://localhost:8080/api/auth/login", {
+    fetch("http://127.0.0.1:8080/api/auth/login", {
         method: "POST",
+        credentials: "include",
         headers: {
             "Content-Type": "application/json"
         },
@@ -98,63 +94,74 @@ function login() {
             password: password
         })
     })
-
     .then(async response => {
-
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || "Login failed!");
+            throw new Error(data.message || "Login failed.");
         }
 
         return data;
     })
+    .then(data => {
+        const actualRole = (data.role || "BUYER").toUpperCase();
 
-.then(data => {
+        if (actualRole === "SELLER_PENDING") {
+              passwordError.textContent =
+            selectedRole === "SELLER"
+            ? "Your seller account is awaiting approval."
+            : "This is a seller account. Please select Seller Login.";
+        return;
+    }
 
-    if (data.message === "Login successful!") {
+     if (actualRole === "ADMIN") {
+     sessionStorage.setItem("loggedIn", "true");
+     sessionStorage.setItem("userId", data.userId);
+     sessionStorage.setItem("username", data.username);
+     sessionStorage.setItem("email", data.email);
+     sessionStorage.setItem("role", "ADMIN");
 
-        const role = (data.role || "BUYER").toUpperCase();
+    window.location.href = "admin.html";
+    return;
+     }
 
-        // Save logged-in user details
+        if (selectedRole !== actualRole) {
+            passwordError.textContent =
+                selectedRole === "SELLER"
+                    ? "This is not an approved seller account."
+                    : "Please select Seller Login for your seller account.";
+            return;
+        }
         sessionStorage.setItem("loggedIn", "true");
         sessionStorage.setItem("userId", data.userId);
         sessionStorage.setItem("username", data.username);
         sessionStorage.setItem("email", data.email);
-        sessionStorage.setItem("role", role);
+        sessionStorage.setItem("role", actualRole);
 
-        // Redirect based on role
-        if (role === "SELLER") {
-
-            window.location.href = "seller.html";
-
-        } else if (role === "ADMIN") {
-
-            // Temporary until admin.html is created
-            window.location.href = "home.html";
-
-        } else {
-
-        
-            window.location.href = "home.html";
-        }
-
-    } else {
-
-        passwordError.textContent =
-            data.message || "Login failed!";
-    }
-
-})
-  .catch(error => {
-
+      if (actualRole === "ADMIN") {
+      window.location.href = "admin.html";
+       } else if (actualRole === "SELLER") {
+       window.location.href = "seller.html";
+      } else {
+      window.location.href = "home.html";
+      }
+    })
+    .catch(error => {
         console.error("Login error:", error);
 
         passwordError.textContent =
             error.message === "Failed to fetch"
                 ? "Unable to connect to the server."
                 : error.message;
-
     });
+    
+    function guestLogin() 
+    {
+        sessionStorage.clear();
+        setItem("role", "GUEST");
+        sessionStorage.setItem("loggedIn", "false");
+        window.location.href = "home.html";
+    }
+
 
 }

@@ -20,6 +20,8 @@ public class Order {
     private double totalAmount;
     private String status;
     private LocalDateTime orderDate;
+    private Integer addressId;
+    private String paymentMethod;
 
     public Order() {
     }
@@ -59,4 +61,20 @@ public class Order {
     public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
     }
+
+    public Integer getAddressId() {
+    return addressId;
+}
+
+public void setAddressId(Integer addressId) {
+    this.addressId = addressId;
+}
+
+public String getPaymentMethod() {
+    return paymentMethod;
+}
+
+public void setPaymentMethod(String paymentMethod) {
+    this.paymentMethod = paymentMethod;
+}
 }

@@ -7,9 +7,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/api/auth")
 public class AuthController 
 {
@@ -82,19 +83,28 @@ if (userRepository.existsByEmail(email)) {
         String hashedPassword =
                    passwordEncoder.encode(password);
         user user = new user();
+    user.setUsername(username.trim());
+    user.setEmail(email);
+    user.setPassword(hashedPassword);
 
-         user.setUsername(username.trim());
-         user.setEmail(email);
-        user.setPassword(hashedPassword);
+     String accountType = request.getAccountType();
 
-        userRepository.save(user);
+    if ("SELLER".equalsIgnoreCase(accountType)) {
+    user.setRole("SELLER_PENDING");
+   } else {
+    user.setRole("BUYER");
+   }
+
+userRepository.save(user);
+
 
         return "Registration successful!";
     }
 
             @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-
+     public ResponseEntity<?> login(
+        @RequestBody LoginRequest request,
+        jakarta.servlet.http.HttpServletRequest requestSession) {
     user account = userRepository.findByUsername(request.getUsername());
 
     if (account == null) {
@@ -119,6 +129,17 @@ if (userRepository.existsByEmail(email)) {
     if (role == null || role.isBlank()) {
         role = "BUYER";
     }
+
+    HttpSession oldSession = requestSession.getSession(false);
+
+if (oldSession != null) {
+    oldSession.invalidate();
+}
+
+HttpSession session = requestSession.getSession(true);
+
+session.setAttribute("userId", account.getId());
+session.setAttribute("role", role.toUpperCase());
 
     return ResponseEntity.ok(
         Map.of(

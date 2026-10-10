@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart | PriyaMart</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="cart.css">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo-area"
+         onclick="window.location.href='home.html'"
+         style="cursor:pointer">
+        <h1>🛒 PriyaMart</h1>
+        <span>YOUR SMART MINI SUPERMARKET</span>
+    </div>
+
+    <button onclick="window.location.href='home.html'">
+        ← Continue Shopping
+    </button>
+</header>
+
+<main class="cart-page">
+    <h2>🛒 My Shopping Cart</h2>
+
+    <div class="cart-layout">
+        <section class="cart-products">
+            <div id="cartItems">
+                Your cart is empty.
+            </div>
+        </section>
+
+        <aside class="cart-summary">
+            <h3>Price Details</h3>
+            <p>Subtotal: ₹<span id="cartTotal">0.00</span></p>
+            <p>Delivery: FREE</p>
+            <hr>
+            <button class="checkout-btn" onclick="checkout()">
+                Proceed to Checkout →
+            </button>
+        </aside>
+    </div>
+
+    <section id="checkoutSection" style="display:none">
+        <h2>🚚 Delivery Address</h2>
+
+        <form id="checkoutForm" onsubmit="confirmOrder(event)">
+            <input id="deliveryName" placeholder="Full Name" required>
+            <input id="deliveryPhone" placeholder="10-digit Phone"
+                   pattern="[0-9]{10}" required>
+            <textarea id="deliveryAddress"
+                      placeholder="Door No., Street, Area" required></textarea>
+            <input id="deliveryCity" placeholder="City" required>
+            <input id="deliveryState" placeholder="State" required>
+            <input id="deliveryPincode" placeholder="6-digit Pincode"
+                   pattern="[0-9]{6}" required>
+
+            <h3>💳 Cash on Delivery</h3>
+            <p>Pay when your order arrives.</p>
+
+            <button type="submit" class="checkout-btn">
+                Confirm Order
+            </button>
+        </form>
+    </section>
+</main>
+
+<script src="cart.js"></script>
+</body>
+</html>

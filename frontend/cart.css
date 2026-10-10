@@ -1,0 +1,154 @@
+
+/* PRIYAMART CART PAGE */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f1f3f6;
+    font-family: Arial, sans-serif;
+    color: #222;
+}
+
+.cart-page {
+    max-width: 1200px;
+    margin: 35px auto;
+    padding: 0 20px;
+}
+
+.cart-page h2 {
+    margin-bottom: 25px;
+}
+
+.cart-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.cart-products,
+.cart-summary,
+#checkoutSection {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.07);
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item h3 {
+    margin: 0 0 10px;
+}
+
+.cart-item p {
+    color: #777;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.quantity-control button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.remove-btn {
+    border: none;
+    background: #fff0f0;
+    color: #e53935;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cart-summary h3 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.checkout-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    background: #ff9f00;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#checkoutSection {
+    margin-top: 25px;
+}
+
+#checkoutForm {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+#checkoutForm input,
+#checkoutForm textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font: inherit;
+}
+
+#deliveryAddress,
+#checkoutForm h3,
+#checkoutForm p,
+#checkoutForm button {
+    grid-column: 1 / -1;
+}
+
+#deliveryAddress {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.empty-cart button {
+    background: #2874f0;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .cart-layout,
+    #checkoutForm {
+        grid-template-columns: 1fr;
+    }
+
+    .cart-item {
+        flex-wrap: wrap;
+    }
+}

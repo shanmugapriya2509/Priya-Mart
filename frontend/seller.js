@@ -1,9 +1,3 @@
-// ==========================================
-// PRIYAMART SELLER DASHBOARD
-// ==========================================
-
-// ---------- SELLER PAGE PROTECTION ----------
-
 const loggedIn = sessionStorage.getItem("loggedIn");
 const currentRole =
     (sessionStorage.getItem("role") || "").toUpperCase();
@@ -12,24 +6,13 @@ if (loggedIn !== "true" || currentRole !== "SELLER") {
     window.location.href = "index.html";
 }
 
-
-// ---------- API ----------
-
-const API_URL = "http://localhost:8080/products";
-
+const API_URL = "http://127.0.0.1:8080/products";
+const SELLER_API_URL = "http://127.0.0.1:8080/api/seller/products";
 let editingProductId = null;
-
-
-// ---------- PAGE LOAD ----------
 
 document.addEventListener("DOMContentLoaded", function () {
     loadSellerProducts();
 });
-
-
-// ==========================================
-// LOAD PRODUCTS
-// ==========================================
 
 function loadSellerProducts() {
 
@@ -41,7 +24,9 @@ function loadSellerProducts() {
 
     status.textContent = "Loading products...";
 
-    fetch(API_URL)
+     fetch(SELLER_API_URL, {
+     credentials: "include"
+     })
 
         .then(response => {
 
@@ -56,13 +41,10 @@ function loadSellerProducts() {
 
             status.textContent = "";
 
-            // Total products
             document.getElementById(
                 "sellerProductCount"
             ).textContent = products.length;
 
-
-            // In stock products
             const inStock = products.filter(
                 product => Number(product.stock) > 0
             ).length;
@@ -71,8 +53,6 @@ function loadSellerProducts() {
                 "inStockCount"
             ).textContent = inStock;
 
-
-            // Out of stock products
             const outOfStock = products.filter(
                 product => Number(product.stock || 0) <= 0
             ).length;
@@ -95,11 +75,6 @@ function loadSellerProducts() {
                 '<p class="seller-error">Unable to load products.</p>';
         });
 }
-
-
-// ==========================================
-// DISPLAY PRODUCTS
-// ==========================================
 
 function displaySellerProducts(products) {
 
@@ -155,10 +130,6 @@ function displaySellerProducts(products) {
 }
 
 
-// ==========================================
-// SHOW / HIDE PRODUCT FORM
-// ==========================================
-
 function showProductForm() {
 
     const form =
@@ -167,10 +138,6 @@ function showProductForm() {
     form.classList.toggle("show");
 }
 
-
-// ==========================================
-// SAVE / UPDATE PRODUCT
-// ==========================================
 
 function saveProduct() {
 
@@ -207,8 +174,6 @@ function saveProduct() {
     error.textContent = "";
 
 
-    // ---------- VALIDATION ----------
-
     if (
         name === "" ||
         price === "" ||
@@ -240,9 +205,6 @@ function saveProduct() {
         return;
     }
 
-
-    // ---------- PRODUCT OBJECT ----------
-
     const product = {
 
         name: name,
@@ -268,17 +230,14 @@ function saveProduct() {
         : "POST";
 
 
-    fetch(url, {
-
-        method: method,
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(product)
-    })
-
+fetch(url, {
+     method: method,
+    credentials: "include",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(product)
+})
     .then(response => {
 
         if (!response.ok) {
@@ -306,19 +265,12 @@ function saveProduct() {
         loadSellerProducts();
     })
 
-    .catch(error => {
-
-        console.error(error);
-
-        error.textContent =
-            "Unable to save product.";
-    });
+    .catch(err => {
+    console.error(err);
+    document.getElementById("sellerProductError").textContent =
+        "Unable to save product.";
+});
 }
-
-
-// ==========================================
-// CLEAR FORM
-// ==========================================
 
 function clearProductForm() {
 
@@ -350,9 +302,6 @@ function clearProductForm() {
 }
 
 
-// ==========================================
-// EDIT PRODUCT
-// ==========================================
 
 function editProduct(id) {
 
@@ -434,11 +383,6 @@ function editProduct(id) {
         });
 }
 
-
-// ==========================================
-// DELETE PRODUCT
-// ==========================================
-
 function deleteProduct(id) {
 
     const confirmed = confirm(
@@ -449,12 +393,10 @@ function deleteProduct(id) {
         return;
     }
 
-
-    fetch(`${API_URL}/${id}`, {
-
-        method: "DELETE"
-    })
-
+     fetch(`${API_URL}/${id}`, {
+       method: "DELETE",
+       credentials: "include"
+      })
     .then(response => {
 
         if (!response.ok) {
@@ -479,10 +421,6 @@ function deleteProduct(id) {
 }
 
 
-// ==========================================
-// LOGOUT
-// ==========================================
-
 function sellerLogout() {
 
     sessionStorage.removeItem("loggedIn");
@@ -493,3 +431,59 @@ function sellerLogout() {
 
     window.location.href = "index.html";
 }
+async function loadSellerOrders() {
+    const container = document.getElementById("sellerOrdersList");
+
+    if (!container) return;
+
+    container.textContent = "Loading orders...";
+
+    try {
+        const response = await fetch(
+            "http://127.0.0.1:8080/api/orders/seller",
+            { credentials: "include" }
+        );
+
+        if (!response.ok) {
+            throw new Error("Unable to load seller orders");
+        }
+
+        const orders = await response.json();
+
+        container.innerHTML = "";
+
+        if (orders.length === 0) {
+            container.textContent = "No customer orders yet.";
+            return;
+        }
+
+        orders.forEach(order => {
+            const card = document.createElement("div");
+            card.className = "seller-stat-card";
+
+            const title = document.createElement("h3");
+            title.textContent = `Order #${order.orderId}`;
+
+            const product = document.createElement("p");
+            product.textContent = `Product: ${order.productName}`;
+
+            const quantity = document.createElement("p");
+            quantity.textContent = `Quantity: ${order.quantity}`;
+
+            const total = document.createElement("p");
+            total.textContent = `Total: ₹${Number(order.total).toFixed(2)}`;
+
+            const status = document.createElement("p");
+            status.textContent = `Status: ${order.status}`;
+
+            card.append(title, product, quantity, total, status);
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Seller orders error:", error);
+        container.textContent = "Unable to load orders.";
+    }
+}
+
+loadSellerOrders();

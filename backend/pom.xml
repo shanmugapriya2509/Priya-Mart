@@ -66,8 +66,8 @@
 	</dependencies>
 
 	<build>
-	    <directory>${project.basedir}/target-new</directory>
-		<plugins>
+<directory>${project.basedir}/target-fixed</directory>	
+	<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
