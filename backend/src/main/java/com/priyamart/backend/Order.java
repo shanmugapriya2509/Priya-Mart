@@ -22,6 +22,7 @@ public class Order {
     private LocalDateTime orderDate;
     private Integer addressId;
     private String paymentMethod;
+    private String cancellationReason;
 
     public Order() {
     }
@@ -77,4 +78,14 @@ public String getPaymentMethod() {
 public void setPaymentMethod(String paymentMethod) {
     this.paymentMethod = paymentMethod;
 }
+
+
+public String getCancellationReason() {
+    return cancellationReason;
+}
+
+public void setCancellationReason(String cancellationReason) {
+    this.cancellationReason = cancellationReason;
+}
+
 }

@@ -12,9 +12,10 @@ function loadOrders() {
         return;
     }
 
-    fetch(`http://localhost:8080/api/orders/user/${userId}`)
-        .then(response => {
-
+fetch(`http://127.0.0.1:8080/api/orders/user/${userId}`, {
+    credentials: "include"
+})
+.then(response=>{
             if (!response.ok) {
                 throw new Error("Unable to load orders");
             }
@@ -91,12 +92,31 @@ function loadOrders() {
                             ${createProgress(status)}
 
                         </div>
+                        
+${status === "CANCELLED" ? `
+    <div class="order-cancel-reason">
+        <strong>✕ Order Cancelled</strong>
+        <p>
+            ${order.cancellationReason
+                ? `Reason: ${order.cancellationReason}`
+                : "Cancellation reason not available"}
+        </p>
+    </div>
+` : ""}
+
 
                         <div class="order-card-bottom">
 
                             <span>
                                 Thank you for shopping with PriyaMart 💛
                             </span>
+                             
+${["PLACED", "CONFIRMED"].includes(status) ? `
+    <button class="cancel-order-btn"
+        onclick="cancelOrder(${order.id})">
+        Cancel Order
+    </button>
+` : ""}
 
                             <button onclick="viewOrderItems(${order.id})">
                                 View Order →
@@ -191,8 +211,9 @@ function viewOrderItems(orderId) {
     container.innerHTML =
         `<p class="loading-items">Loading items...</p>`;
 
-    fetch(`http://localhost:8080/api/orders/${orderId}/items`)
-        .then(response => {
+fetch(`http://127.0.0.1:8080/api/orders/${userId}/items`, {
+    credentials: "include"
+})        .then(response => {
 
             if (!response.ok) {
                 throw new Error("Unable to load order items");
@@ -207,10 +228,18 @@ function viewOrderItems(orderId) {
 
                 ${items.map(item => `
 
-                    <div class="order-product">
 
-                        <div>
-                            <strong>${item.productName}</strong>
+<div class="order-product">
+
+    <img
+        src="${getOrderProductImage(item.productName)}"
+        alt="Product"
+        class="order-product-image"
+        onerror="this.onerror=null;this.src='images/grocery.jpg'"
+    >
+
+    <div>
+        <strong>${item.productName}</strong>
 
                             <span>
                                 ₹${Number(item.price).toFixed(2)}
@@ -240,4 +269,130 @@ function viewOrderItems(orderId) {
 }
 
 
+
+function getOrderProductImage(productName) {
+    const name = String(productName || "").toLowerCase();
+
+    if (name.includes("rice")) return "images/rice.jpg";
+    if (name.includes("milk")) return "images/milk.jpg";
+    if (name.includes("biscuit")) return "images/biscuits.jpg";
+    if (name.includes("chips")) return "images/chips.jpg";
+    if (name.includes("cookie")) return "images/cookies.jpg";
+    if (name.includes("shampoo")) return "images/shampoo.jpg";
+    if (name.includes("soap")) return "images/soap.jpg";
+    if (name.includes("juice")) return "images/orange-juice.jpg";
+
+    return "images/grocery.jpg";
+}
+
+function loadOrderDeliveryAddress() {
+
+    const addressBox = document.getElementById("orderDeliveryAddress");
+
+    if (!addressBox || !userId) return;
+
+    fetch(`http://127.0.0.1:8080/api/address/${userId}`, {
+        credentials: "include"
+    })
+    .then(response => {
+        if (response.status === 404) return null;
+        if (!response.ok) throw new Error("Unable to load address");
+        return response.json();
+    })
+    .then(address => {
+
+        if (!address) {
+            addressBox.textContent = "No delivery address saved.";
+            return;
+        }
+
+        addressBox.textContent = [
+            address.fullName,
+            address.addressLine,
+            address.city,
+            address.state,
+            address.pincode
+        ].filter(Boolean).join(", ");
+    })
+    .catch(error => {
+        console.error("Delivery address error:", error);
+        addressBox.textContent = "Unable to load delivery address.";
+    });
+}
+
+
+
+let selectedCancelOrderId = null;
+
+function cancelOrder(orderId) {
+    selectedCancelOrderId = orderId;
+
+    document.getElementById("cancelReason").value = "";
+    document.getElementById("cancelError").textContent = "";
+
+    document.getElementById("cancelModal")
+        .classList.add("active");
+}
+
+function closeCancelModal() {
+    document.getElementById("cancelModal")
+        .classList.remove("active");
+
+    selectedCancelOrderId = null;
+}
+
+async function confirmCancelOrder() {
+    const reason = document.getElementById("cancelReason").value;
+    const errorBox = document.getElementById("cancelError");
+    const button = document.querySelector(".confirm-cancel-btn");
+
+    if (!reason) {
+        errorBox.textContent = "Please select a cancellation reason.";
+        return;
+    }
+
+    if (selectedCancelOrderId === null) return;
+
+    errorBox.textContent = "";
+    button.disabled = true;
+    button.textContent = "Cancelling...";
+
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8080/api/orders/${selectedCancelOrderId}/cancel`,
+            {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ reason: reason })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            errorBox.textContent =
+                result.message || "Unable to cancel order.";
+            return;
+        }
+
+        closeCancelModal();
+        loadOrders();
+
+    } catch (error) {
+        console.error("Cancellation error:", error);
+        errorBox.textContent =
+            "Unable to cancel order. Please try again.";
+
+    } finally {
+        button.disabled = false;
+        button.textContent = "Confirm Cancellation";
+    }
+}
+
+
 loadOrders();
+
+loadOrderDeliveryAddress();

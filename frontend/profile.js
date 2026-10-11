@@ -10,10 +10,6 @@ const email =
     sessionStorage.getItem("email") || "";
 
 
-// =============================
-// SHOW ACCOUNT DETAILS
-// =============================
-
 document.getElementById("profileUsername").textContent = username;
 document.getElementById("profileEmail").textContent = email;
 
@@ -24,10 +20,6 @@ document.getElementById("profileLetter").textContent =
     username.charAt(0).toUpperCase();
 
 
-// =============================
-// LOAD SAVED ADDRESS
-// =============================
-
 function loadAddress() {
 
     if (!userId) {
@@ -35,8 +27,9 @@ function loadAddress() {
         return;
     }
 
-    fetch(`http://localhost:8080/api/address/${userId}`)
-        .then(response => {
+fetch(`http://127.0.0.1:8080/api/address/${userId}`, {
+    credentials: "include"
+})        .then(response => {
 
             if (response.status === 404) {
                 return null;
@@ -77,10 +70,6 @@ function loadAddress() {
         });
 }
 
-
-// =============================
-// SAVE / UPDATE ADDRESS
-// =============================
 
 document.getElementById("addressForm")
     .addEventListener("submit", function(event) {
@@ -150,9 +139,10 @@ document.getElementById("addressForm")
 
 
         fetch(
-            `http://localhost:8080/api/address/${userId}`,
+            `http://127.0.0.1:8080/api/address/${userId}`,
             {
                 method: "POST",
+                credentials: "include",
 
                 headers: {
                     "Content-Type": "application/json"

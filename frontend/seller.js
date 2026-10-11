@@ -61,6 +61,51 @@ function loadSellerProducts() {
                 "outOfStockCount"
             ).textContent = outOfStock;
 
+            
+/* ===== SELLER INVENTORY ALERTS ===== */
+
+const alertBox = document.getElementById("sellerLowStockAlerts");
+
+if (alertBox) {
+
+    const lowStockProducts = products.filter(product =>
+        Number(product.stock) <= 5
+    );
+
+    alertBox.innerHTML = "";
+
+    if (lowStockProducts.length === 0) {
+        alertBox.textContent = "✓ All products have sufficient stock.";
+    } else {
+
+        lowStockProducts.forEach(product => {
+
+            const item = document.createElement("div");
+            item.className = "seller-inventory-alert";
+
+            const stock = Number(product.stock);
+
+            const badge = document.createElement("span");
+            badge.className = stock <= 0
+                ? "inventory-out"
+                : "inventory-low";
+
+            badge.textContent = stock <= 0
+                ? "Out of Stock"
+                : "Low Stock";
+
+            const name = document.createElement("strong");
+            name.textContent = product.name;
+
+            const quantity = document.createElement("small");
+            quantity.textContent = `Remaining: ${stock}`;
+
+            item.append(name, quantity, badge);
+            alertBox.appendChild(item);
+
+        });
+    }
+}
 
             displaySellerProducts(products);
         })
@@ -252,11 +297,40 @@ fetch(url, {
         return response.json();
     })
 
-    .then(() => {
+    
+.then(async (savedProduct) => {
 
-        editingProductId = null;
+    const imageInput =
+        document.getElementById("sellerProductImages");
 
-        clearProductForm();
+    const files = imageInput.files;
+
+    if (files.length > 0) {
+
+        const formData = new FormData();
+
+        for (const file of files) {
+            formData.append("files", file);
+        }
+
+        const uploadResponse = await fetch(
+            `http://127.0.0.1:8080/api/seller/products/${savedProduct.id}/images`,
+            {
+                method: "POST",
+                credentials: "include",
+                body: formData
+            }
+        );
+
+        if (!uploadResponse.ok) {
+            throw new Error("Image upload failed");
+        }
+    }
+
+    editingProductId = null;
+
+    clearProductForm();
+
 
         document
             .getElementById("productFormSection")
@@ -357,6 +431,37 @@ function editProduct(id) {
                 "sellerProductDescription"
             ).value = product.description || "";
 
+            
+/* Show already uploaded product images */
+
+const imageInput =
+    document.getElementById("sellerProductImages");
+
+const imagePreview =
+    document.getElementById("sellerImagePreview");
+
+imageInput.value = "";
+imagePreview.innerHTML = "";
+
+const savedImages =
+    product.images && product.images.length > 0
+        ? product.images
+        : product.image
+            ? [product.image]
+            : [];
+
+savedImages.forEach(imageUrl => {
+
+    const image = document.createElement("img");
+
+    image.src = imageUrl.startsWith("http")
+        ? imageUrl
+        : `http://127.0.0.1:8080${imageUrl}`;
+
+    image.alt = product.name;
+
+    imagePreview.appendChild(image);
+});
 
             const form =
                 document.getElementById(
@@ -431,9 +536,9 @@ function sellerLogout() {
 
     window.location.href = "index.html";
 }
+
 async function loadSellerOrders() {
     const container = document.getElementById("sellerOrdersList");
-
     if (!container) return;
 
     container.textContent = "Loading orders...";
@@ -444,46 +549,277 @@ async function loadSellerOrders() {
             { credentials: "include" }
         );
 
-        if (!response.ok) {
-            throw new Error("Unable to load seller orders");
-        }
+        if (!response.ok) throw new Error("Unable to load orders");
 
         const orders = await response.json();
+        
+        // Seller Overview: Active Orders & Delivered Revenue
+        const activeElement =
+            document.getElementById("activeSellerOrders");
 
-        container.innerHTML = "";
+        const revenueElement =
+            document.getElementById("sellerRevenue");
+
+        if (activeElement || revenueElement) {
+
+            const uniqueOrders = [
+                ...new Map(
+                    orders.map(order => [order.orderId, order])
+                ).values()
+            ];
+
+            const activeCount = uniqueOrders.filter(order =>
+                ["PLACED", "CONFIRMED", "PACKED", "SHIPPED"]
+                    .includes(String(order.status).toUpperCase())
+            ).length;
+
+            const revenue = orders
+                .filter(order =>
+                    String(order.status).toUpperCase() === "DELIVERED"
+                )
+                .reduce((sum, order) =>
+                    sum + Number(order.total || 0), 0
+                );
+
+            if (activeElement) {
+                activeElement.textContent = activeCount;
+            }
+
+            if (revenueElement) {
+                revenueElement.textContent =
+                    "₹" + revenue.toFixed(2);
+            }
+        }
+
+        // Update seller order statistics
+        const uniqueOrders = [
+            ...new Map(
+                orders.map(order => [order.orderId, order])
+            ).values()
+        ];
+
+        const totalOrders = uniqueOrders.length;
+
+        const activeOrders = uniqueOrders.filter(order =>
+            ["PLACED", "CONFIRMED", "PACKED", "SHIPPED"]
+                .includes(String(order.status).toUpperCase())
+        ).length;
+
+        const deliveredOrders = uniqueOrders.filter(order =>
+            String(order.status).toUpperCase() === "DELIVERED"
+        ).length;
+
+        const cancelledOrders = uniqueOrders.filter(order =>
+            String(order.status).toUpperCase() === "CANCELLED"
+        ).length;
+
+        const stats = {
+            totalSellerOrders: totalOrders,
+            activeSellerOrders: activeOrders,
+            deliveredSellerOrders: deliveredOrders,
+            cancelledSellerOrders: cancelledOrders
+        };
+
+        Object.entries(stats).forEach(([id, count]) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = count;
+        });
 
         if (orders.length === 0) {
             container.textContent = "No customer orders yet.";
             return;
         }
 
-        orders.forEach(order => {
-            const card = document.createElement("div");
-            card.className = "seller-stat-card";
+        const nextSteps = {
+            PLACED: ["CONFIRMED", "Confirm Order"],
+            CONFIRMED: ["PACKED", "Mark as Packed"],
+            PACKED: ["SHIPPED", "Mark as Shipped"],
+            SHIPPED: ["DELIVERED", "Mark as Delivered"]
+        };
 
-            const title = document.createElement("h3");
-            title.textContent = `Order #${order.orderId}`;
+        const table = document.createElement("table");
+        table.className = "seller-orders-table";
 
-            const product = document.createElement("p");
-            product.textContent = `Product: ${order.productName}`;
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+        `;
 
-            const quantity = document.createElement("p");
-            quantity.textContent = `Quantity: ${order.quantity}`;
+        const tbody = document.createElement("tbody");
 
-            const total = document.createElement("p");
-            total.textContent = `Total: ₹${Number(order.total).toFixed(2)}`;
+        const displayedOrders = window.location.pathname.endsWith("seller.html")
+    ? orders.slice(-5).reverse()
+    : orders;
 
-            const status = document.createElement("p");
-            status.textContent = `Status: ${order.status}`;
+displayedOrders.forEach(order => {
+            const row = document.createElement("tr");
 
-            card.append(title, product, quantity, total, status);
-            container.appendChild(card);
+            const values = [
+                `#${order.orderId}`,
+                order.productName,
+                order.quantity,
+                `₹${Number(order.total).toFixed(2)}`
+            ];
+
+            values.forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            const statusCell = document.createElement("td");
+            const badge = document.createElement("span");
+            const orderStatus = String(order.status || "UNKNOWN").toUpperCase();
+
+            badge.className = "seller-order-badge " + orderStatus.toLowerCase();
+            badge.textContent = orderStatus;
+
+            statusCell.appendChild(badge);
+            row.appendChild(statusCell);
+
+            const actionCell = document.createElement("td");
+            const next = nextSteps[orderStatus];
+
+            if (next) {
+                const button = document.createElement("button");
+                button.className = "seller-update-btn";
+                button.textContent = next[1];
+                button.onclick = () =>
+                    updateSellerOrderStatus(order.orderId, next[0]);
+
+                actionCell.appendChild(button);
+            } else {
+                actionCell.textContent = "—";
+            }
+
+            row.appendChild(actionCell);
+            tbody.appendChild(row);
         });
 
+        table.appendChild(tbody);
+        container.replaceChildren(table);
+
     } catch (error) {
-        console.error("Seller orders error:", error);
+        console.error(error);
         container.textContent = "Unable to load orders.";
     }
 }
 
+    
+async function updateSellerOrderStatus(orderId, newStatus) {
+
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8080/api/orders/${orderId}/status`,
+            {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            console.error(result.message);
+            return;
+        }
+
+        loadSellerOrders();
+
+    } catch (error) {
+        console.error("Status update error:", error);
+    }
+}
 loadSellerOrders();
+
+
+function filterSellerOrders() {
+    const search = document.getElementById("sellerOrderSearch");
+    const filter = document.getElementById("sellerOrderStatusFilter");
+
+    if (!search || !filter) return;
+
+    const query = search.value.trim().toLowerCase();
+    const selectedStatus = filter.value;
+
+    document.querySelectorAll(".seller-orders-table tbody tr")
+        .forEach(row => {
+            const cells = row.querySelectorAll("td");
+
+            const orderId = cells[0].textContent.toLowerCase();
+            const product = cells[1].textContent.toLowerCase();
+            const status = cells[4].textContent.trim().toUpperCase();
+
+            const matchesSearch =
+                orderId.includes(query) || product.includes(query);
+
+            const matchesStatus =
+                selectedStatus === "ALL" || status === selectedStatus;
+
+            row.style.display =
+                matchesSearch && matchesStatus ? "" : "none";
+        });
+}
+
+/* ===== SELLER PRODUCT IMAGE PREVIEW ===== */
+
+const sellerImageInput = document.getElementById("sellerProductImages");
+const sellerImagePreview = document.getElementById("sellerImagePreview");
+
+if (sellerImageInput && sellerImagePreview) {
+
+    sellerImageInput.addEventListener("change", function () {
+
+        sellerImagePreview.innerHTML = "";
+
+        const files = Array.from(this.files);
+
+        if (files.length > 5) {
+            alert("Maximum 5 images allowed.");
+            this.value = "";
+            return;
+        }
+
+        files.forEach(file => {
+
+            if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+                alert("Only JPG, PNG and WebP images are allowed.");
+                sellerImageInput.value = "";
+                sellerImagePreview.innerHTML = "";
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("Each image must be below 2 MB.");
+                sellerImageInput.value = "";
+                sellerImagePreview.innerHTML = "";
+                return;
+            }
+
+            const image = document.createElement("img");
+
+            image.src = URL.createObjectURL(file);
+
+            image.onload = function () {
+                URL.revokeObjectURL(image.src);
+            };
+
+            sellerImagePreview.appendChild(image);
+        });
+
+    });
+}

@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders | PriyaMart Seller Center</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="seller-header">
+    <div>
+        <h1>PriyaMart</h1>
+        <span>Seller Center</span>
+    </div>
+    <button onclick="sellerLogout()">Logout</button>
+</header>
+
+<aside class="seller-sidebar">
+    <div class="seller-sidebar-title">WORKSPACE</div>
+
+    <a href="seller.html" class="seller-nav-link">
+        ◫ &nbsp; Overview
+    </a>
+
+    <a href="seller-products.html" class="seller-nav-link">
+        ▣ &nbsp; Products
+    </a>
+
+    <a href="seller-orders.html" class="seller-nav-link active">
+        ▤ &nbsp; Customer Orders
+    </a>
+
+    <div class="seller-sidebar-bottom">
+        <span>PRIYAMART SELLER CENTER</span>
+        <small>Manage your store with confidence.</small>
+    </div>
+</aside>
+
+<main class="seller-container">
+
+    <div class="seller-title">
+        <div>
+            <p>ORDER MANAGEMENT</p>
+            <h2>Customer Orders</h2>
+            <span>Track and manage your customer orders.</span>
+        </div>
+    </div>
+
+    <section class="seller-products">
+        <div class="seller-section-heading">
+            <h2>All Orders</h2>
+
+            <button class="seller-update-btn"
+                    onclick="loadSellerOrders()">
+                ↻ Refresh Orders
+            </button>
+        </div>
+        
+<section class="seller-order-stats">
+
+    <div class="seller-order-stat">
+        <span>Total Orders</span>
+        <strong id="totalSellerOrders">0</strong>
+    </div>
+
+    <div class="seller-order-stat">
+        <span>Active Orders</span>
+        <strong id="activeSellerOrders">0</strong>
+    </div>
+
+    <div class="seller-order-stat">
+        <span>Delivered</span>
+        <strong id="deliveredSellerOrders">0</strong>
+    </div>
+
+    <div class="seller-order-stat">
+        <span>Cancelled</span>
+        <strong id="cancelledSellerOrders">0</strong>
+    </div>
+
+</section>
+
+        
+<div class="seller-order-filters">
+    <input
+        type="search"
+        id="sellerOrderSearch"
+        placeholder="Search order ID or product..."
+        oninput="filterSellerOrders()"
+    >
+
+    <select
+        id="sellerOrderStatusFilter"
+        onchange="filterSellerOrders()"
+    >
+        <option value="ALL">All Orders</option>
+        <option value="PLACED">Placed</option>
+        <option value="CONFIRMED">Confirmed</option>
+        <option value="PACKED">Packed</option>
+        <option value="SHIPPED">Shipped</option>
+        <option value="DELIVERED">Delivered</option>
+        <option value="CANCELLED">Cancelled</option>
+    </select>
+</div>
+
+
+        <div id="sellerOrdersList">
+            Loading orders...
+        </div>
+    </section>
+
+</main>
+
+<script src="seller.js"></script>
+
+</body>
+</html>

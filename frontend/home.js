@@ -130,6 +130,7 @@ function getProductImage(product) {
         "rice.jpg", "shampoo.jpg", "snacks.jpg",
         "soap.jpg", "soft-drink.jpg"
     ];
+    
 
     if (typeof product.image === "string") {
         const image = product.image.trim();
@@ -203,6 +204,7 @@ function displayProducts(productArray) {
     }
 
     productArray.forEach(product => {
+        productDetailsMap.set(String(product.id), product);
 
         const card = document.createElement("div");
         card.className = "product-card";
@@ -326,46 +328,91 @@ function displayProducts(productArray) {
     });
 }
 
-function changeProductQuantity(productId, change) {
+function addToCart(productId) {
 
-    const item = cart.find(product => product.id === productId);
-
-    if (!item) return;
-
-    item.quantity += change;
-
-    if (item.quantity <= 0) {
-        cart = cart.filter(product => product.id !== productId);
-    }
-
-    checkBudget(total);
-
-    displayProducts(products);
-}
-
-function addToCart(id) {
-    const product = products.find(product => product.id === id);
+    const product = products.find(
+        p => Number(p.id) === Number(productId)
+    );
 
     if (!product) {
+        console.error("Product not found:", productId);
         return;
     }
 
     const existingItem = cart.find(
-        item => item.id === id
+        item => Number(item.id) === Number(productId)
     );
 
     if (existingItem) {
-        existingItem.quantity++;
+
+        if (product.stock != null &&
+            Number(existingItem.quantity) >= Number(product.stock)) {
+            alert("Only " + product.stock + " items available.");
+            return;
+        }
+
+        existingItem.quantity += 1;
+
     } else {
+
+        if (product.stock != null && Number(product.stock) <= 0) {
+            alert("This product is out of stock.");
+            return;
+        }
+
         cart.push({
             ...product,
             quantity: 1
         });
     }
 
+    localStorage.setItem(
+        "priyamart_cart",
+        JSON.stringify(cart)
+    );
+
     displayCart();
-    savePriyaMartCart();
 }
+
+
+function changeProductQuantity(productId, change) {
+
+    const item = cart.find(
+        product => product.id === productId
+    );
+
+    if (!item) return;
+
+    const newQuantity = Number(item.quantity) + change;
+
+    if (change > 0 &&
+        item.stock != null &&
+        newQuantity > Number(item.stock)) {
+        alert("Only " + item.stock + " items available.");
+        return;
+    }
+
+    if (newQuantity <= 0) {
+        cart = cart.filter(
+            product => product.id !== productId
+        );
+    } else {
+        item.quantity = newQuantity;
+    }
+
+    const total = cart.reduce(
+        (sum, product) =>
+            sum + Number(product.price) * Number(product.quantity),
+        0
+    );
+
+    localStorage.setItem("priyamart_cart", JSON.stringify(cart));
+
+    displayCart();
+    checkBudget(total);
+    displayProducts(products);
+}
+
 function displayCart() {
     localStorage.setItem(
     "priyamart_cart_" + (sessionStorage.getItem("userId") || "guest"),
@@ -1055,32 +1102,49 @@ async function loadProductRating(productId) {
         console.error("Rating loading failed:", error);
     }
 }
-
+const productDetailsMap = new Map();
 let selectedProduct = null;
 let currentImageIndex = 0;
 let productImages = [];
 
 function openProductDetails(productId) {
-    selectedProduct = allProducts.find(
-        p => String(p.id) === String(productId)
-    );
+      selectedProduct = productDetailsMap.get(String(productId));
 
     if (!selectedProduct) {
         alert("Product not found");
         return;
     }
+   const p = selectedProduct;
 
-    const p = selectedProduct;
+const mainImage = getProductImage(p);
 
-    // Main product image
-    const mainImage = getProductImage(p);
+// Convert backend image path to full URL
+function getFullImageUrl(url) {
+    if (!url) return "";
 
-    // Additional images (if available)
-    productImages = [
-        mainImage,
-        ...(Array.isArray(p.images) ? p.images : [])
-    ].filter(Boolean);
+    if (url.startsWith("http")) {
+        return url;
+    }
 
+    if (url.startsWith("/uploads/")) {
+        return "http://127.0.0.1:8080" + url;
+    }
+
+    return url;
+}
+
+// Get all uploaded images
+if (Array.isArray(p.images) && p.images.length > 0) {
+
+    productImages = p.images
+        .map(getFullImageUrl)
+        .filter(Boolean);
+
+} else {
+
+    productImages = [mainImage];
+
+}
     currentImageIndex = 0;
 
     document.getElementById("detailProductImage").src =
@@ -1104,6 +1168,11 @@ function openProductDetails(productId) {
     document.getElementById("detailProductRating").textContent =
         "⭐ Customer Reviews";
 
+        document.getElementById("detailAddToCart").onclick = function () {
+    addToCart(p.id);
+    closeProductDetails();
+};
+
     document.getElementById("productDetailsPopup").style.display =
         "flex";
 }
@@ -1123,5 +1192,32 @@ function changeProductImage(direction) {
     document.getElementById("detailProductImage").src =
         productImages[currentImageIndex];
 }
+
+async function loadDeliveryLocation() {
+    const userId = sessionStorage.getItem("userId");
+    const locationElement = document.getElementById("deliveryLocation");
+
+    if (!locationElement || !userId) return;
+
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8080/api/address/${userId}`,
+            { credentials: "include" }
+        );
+
+        if (!response.ok) return;
+
+        const address = await response.json();
+
+        if (address && address.city && address.pincode) {
+            locationElement.textContent =
+                `${address.city}, ${address.pincode}`;
+        }
+    } catch (error) {
+        console.error("Delivery location error:", error);
+    }
+}
+
+loadDeliveryLocation();
 
 

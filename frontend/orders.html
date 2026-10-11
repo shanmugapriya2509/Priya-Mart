@@ -27,6 +27,13 @@
         <p>Track and view your PriyaMart orders.</p>
     </div>
 
+    
+<div class="orders-delivery-card">
+    <h3>📍 Delivery Address</h3>
+    <p id="orderDeliveryAddress">Loading delivery address...</p>
+</div>
+
+
     <div id="ordersList">
         <div class="orders-loading">
             Loading your orders...
@@ -34,6 +41,55 @@
     </div>
 
 </main>
+
+
+<!-- Cancel Order Popup -->
+<div id="cancelModal" class="cancel-modal-overlay">
+
+    <div class="cancel-modal">
+
+        <button class="cancel-close"
+                onclick="closeCancelModal()">×</button>
+
+        <h2>Cancel Order</h2>
+
+        <p class="cancel-subtitle">
+            We're sorry to see you cancel your order.
+            Please tell us why.
+        </p>
+
+        <label for="cancelReason">
+            Reason for cancellation
+        </label>
+
+        <select id="cancelReason">
+            <option value="">Select a reason</option>
+            <option value="Changed my mind">Changed my mind</option>
+            <option value="Ordered by mistake">Ordered by mistake</option>
+            <option value="Wrong delivery address">Wrong delivery address</option>
+            <option value="Delivery taking too long">Delivery taking too long</option>
+            <option value="Found a better price">Found a better price</option>
+            <option value="Other">Other reason</option>
+        </select>
+
+        <p id="cancelError" class="cancel-error"></p>
+
+        <div class="cancel-actions">
+            <button class="keep-order-btn"
+                    onclick="closeCancelModal()">
+                Keep My Order
+            </button>
+
+            <button class="confirm-cancel-btn"
+                    onclick="confirmCancelOrder()">
+                Confirm Cancellation
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
 
 <script src="orders.js"></script>
 

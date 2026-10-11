@@ -1,112 +1,148 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seller Dashboard - PriyaMart</title>
+    <title>Overview | PriyaMart Seller Center</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <header class="seller-header">
+<header class="seller-header">
+    <div>
+        <h1>PriyaMart</h1>
+        <span>Seller Center</span>
+    </div>
+    <button onclick="sellerLogout()">Logout</button>
+</header>
+
+<aside class="seller-sidebar">
+    <div class="seller-sidebar-title">WORKSPACE</div>
+
+    <a href="seller.html" class="seller-nav-link active">
+        ◫ &nbsp; Overview
+    </a>
+
+    <a href="seller-products.html" class="seller-nav-link">
+        ▣ &nbsp; Products
+    </a>
+
+    <a href="seller-orders.html" class="seller-nav-link">
+        ▤ &nbsp; Customer Orders
+    </a>
+
+    <div class="seller-sidebar-bottom">
+        <span>PRIYAMART SELLER CENTER</span>
+        <small>Manage your store with confidence.</small>
+    </div>
+</aside>
+
+<main class="seller-container">
+
+    <div class="seller-title">
         <div>
-            <h1>PriyaMart</h1>
-            <span>Seller Center</span>
+            <p>SELLER DASHBOARD</p>
+            <h2>Store Overview</h2>
+            <span>Here's what's happening in your store.</span>
         </div>
 
-        <button onclick="sellerLogout()">Logout</button>
-    </header>
+        <a href="seller-products.html" class="add-product-btn">
+            + Add Product
+        </a>
+    </div>
 
-    <main class="seller-container">
+    <!-- Business Statistics -->
+    <section class="seller-stats">
 
-        <div class="seller-title">
-            <div>
-                <p>SELLER DASHBOARD</p>
-                <h2>Manage Products</h2>
-            </div>
-
-            <button class="add-product-btn" onclick="showProductForm()">
-                + Add Product
-            </button>
+        <div class="seller-stat-card">
+            <span>Total Products</span>
+            <strong id="sellerProductCount">0</strong>
         </div>
 
-        <section class="seller-stats">
+        <div class="seller-stat-card">
+            <span>In Stock</span>
+            <strong id="inStockCount">0</strong>
+        </div>
 
-            <div class="seller-stat-card">
-                <span>Total Products</span>
-                <strong id="sellerProductCount">0</strong>
-            </div>
+        <div class="seller-stat-card">
+            <span>Out of Stock</span>
+            <strong id="outOfStockCount">0</strong>
+        </div>
 
-            <div class="seller-stat-card">
-                <span>In Stock</span>
-                <strong id="inStockCount">0</strong>
-            </div>
+        <div class="seller-stat-card">
+            <span>Total Orders</span>
+            <strong id="totalSellerOrders">0</strong>
+        </div>
+        
+<div class="seller-stat-card">
+    <span>Active Orders</span>
+    <strong id="activeSellerOrders">0</strong>
+</div>
 
-            <div class="seller-stat-card">
-                <span>Out of Stock</span>
-                <strong id="outOfStockCount">0</strong>
-            </div>
-
-        </section>
-
-        <section id="productFormSection" class="seller-product-form">
-
-            <h3>Add New Product</h3>
-
-            <input type="text" id="sellerProductName"
-                   placeholder="Product name">
-
-            <input type="number" id="sellerProductPrice"
-                   placeholder="Price">
-
-            <input type="text" id="sellerProductCategory"
-                   placeholder="Category">
-
-            <input type="number" id="sellerProductStock"
-                   placeholder="Stock quantity">
-
-            <textarea id="sellerProductDescription"
-                      placeholder="Product description"></textarea>
-
-            <small id="sellerProductError"></small>
-
-            <button onclick="saveProduct()">Save Product</button>
-
-        </section>
-
-        <section class="seller-products">
-
-            <div class="seller-section-heading">
-                <h2>Your Products</h2>
-                <span id="sellerStatus"></span>
-            </div>
-
-            <div id="sellerProductList">
-                Loading products...
-            </div>
+<div class="seller-stat-card">
+    <span>Delivered Revenue</span>
+    <strong id="sellerRevenue">₹0.00</strong>
+</div>
 
 
-        </section>
+    </section>
 
-        <section class="seller-products">
-
+    <!-- Quick Access -->
+     
+<section class="seller-products">
     <div class="seller-section-heading">
-        <h2>Customer Orders</h2>
-        <button type="button" onclick="loadSellerOrders()">
-            Refresh Orders
-        </button>
+        <h2>Inventory Alerts</h2>
+        <a href="seller-products.html">Manage Stock →</a>
     </div>
 
-    <div id="sellerOrdersList">
-        Loading orders...
+    <div id="sellerLowStockAlerts">
+        Checking inventory...
     </div>
-
 </section>
 
-    </main>
+    <section class="seller-products">
+        <div class="seller-section-heading">
+            <h2>Quick Actions</h2>
+        </div>
 
-    <script src="seller.js"></script>
+        <div class="seller-quick-actions">
+
+            <a href="seller-products.html">
+                <strong>Manage Products →</strong>
+                <span>Add products, update prices and stock.</span>
+            </a>
+
+            <a href="seller-orders.html">
+                <strong>Manage Orders →</strong>
+                <span>View and process customer orders.</span>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- Recent Orders -->
+    <section class="seller-products">
+
+        <div class="seller-section-heading">
+            <h2>Recent Orders</h2>
+            <a href="seller-orders.html">View All →</a>
+        </div>
+
+        <div id="sellerOrdersList">
+            Loading recent orders...
+        </div>
+
+    </section>
+
+<div style="display:none">
+    <span id="sellerStatus"></span>
+    <div id="sellerProductList"></div>
+</div>
+
+</main>
+
+<script src="seller.js"></script>
 
 </body>
 </html>

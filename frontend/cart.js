@@ -19,6 +19,7 @@ function saveCart() {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
+
 function displayCart() {
     const container = document.getElementById("cartItems");
     const totalElement = document.getElementById("cartTotal");
@@ -40,17 +41,52 @@ function displayCart() {
     }
 
     container.innerHTML = cart.map((item, index) => {
-        const price = Number(item.price);
-        const quantity = Number(item.quantity);
+        const price = Number(item.price || 0);
+        const quantity = Number(item.quantity || 1);
         const subtotal = price * quantity;
 
         total += subtotal;
 
+        // Reuse product images already available in PriyaMart
+        const name = String(item.name || "").toLowerCase();
+        const category = String(item.category || "").toLowerCase();
+
+        let image = "images/grocery.jpg";
+
+        if (name.includes("rice") || category.includes("rice")) {
+            image = "images/rice.jpg";
+        } else if (name.includes("milk")) {
+            image = "images/milk.jpg";
+        } else if (name.includes("biscuit")) {
+            image = "images/biscuits.jpg";
+        } else if (name.includes("chip")) {
+            image = "images/chips.jpg";
+        } else if (name.includes("cookie")) {
+            image = "images/cookies.jpg";
+        } else if (name.includes("shampoo")) {
+            image = "images/shampoo.jpg";
+        } else if (name.includes("soap")) {
+            image = "images/soap.jpg";
+        } else if (name.includes("juice")) {
+            image = "images/orange-juice.jpg";
+        }
+
         return `
             <div class="cart-item">
-                <div>
-                    <h3>${item.name}</h3>
-                    <p>₹${price.toFixed(2)} each</p>
+
+                <div class="cart-product-info">
+                    <img
+                        src="${image}"
+                        alt="Product"
+                        class="cart-product-image"
+                        onerror="this.onerror=null;this.src='images/grocery.jpg'"
+                    >
+
+                    <div class="cart-product-text">
+                        <h3>${item.name}</h3>
+                        <p>${item.brand || "PriyaMart"} ${item.unit ? "• " + item.unit : ""}</p>
+                        <span>₹${price.toFixed(2)} each</span>
+                    </div>
                 </div>
 
                 <div class="quantity-control">
@@ -59,18 +95,22 @@ function displayCart() {
                     <button onclick="changeQuantity(${index}, 1)">+</button>
                 </div>
 
-                <strong>₹${subtotal.toFixed(2)}</strong>
+                <strong class="cart-item-price">
+                    ₹${subtotal.toFixed(2)}
+                </strong>
 
                 <button class="remove-btn"
                     onclick="removeFromCart(${index})">
                     Remove
                 </button>
+
             </div>
         `;
     }).join("");
 
     totalElement.textContent = total.toFixed(2);
 }
+
 
 function changeQuantity(index, change) {
     if (!cart[index]) return;
@@ -247,14 +287,14 @@ async function confirmOrder(event) {
         saveCart();
         displayCart();
 
-        alert(
-            "🎉 Order Confirmed!\n" +
-            "Order ID: PM-" + order.id + "\n" +
-            "Total: ₹" + Number(order.totalAmount).toFixed(2) +
-            "\nPayment: Cash on Delivery"
-        );
+const orderId = "PM-" + order.id;
 
-        location.href = "orders.html";
+const total = orderData.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+);
+
+showOrderSuccess(orderId, total, "Cash on Delivery");
 
     } catch (error) {
         alert(error.message);
@@ -265,3 +305,55 @@ async function confirmOrder(event) {
 }
 
 displayCart();
+
+function playOrderSuccessSound() {
+    try {
+        const AudioContextClass =
+            window.AudioContext || window.webkitAudioContext;
+
+        const audio = new AudioContextClass();
+
+        if (audio.state === "suspended") {
+            audio.resume();
+        }
+
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+
+        notes.forEach((frequency, index) => {
+            const oscillator = audio.createOscillator();
+            const gain = audio.createGain();
+
+            oscillator.type = "sine";
+            oscillator.frequency.value = frequency;
+
+            oscillator.connect(gain);
+            gain.connect(audio.destination);
+
+            const start = audio.currentTime + index * 0.13;
+
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.exponentialRampToValueAtTime(0.12, start + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+
+            oscillator.start(start);
+            oscillator.stop(start + 0.31);
+        });
+
+        setTimeout(() => audio.close(), 1200);
+    } catch (error) {
+        console.log("Sound unavailable:", error);
+    }
+}
+
+function showOrderSuccess(orderId, total, payment) {
+    document.getElementById("successOrderId").textContent = orderId;
+    document.getElementById("successTotal").textContent =
+        "₹" + Number(total).toFixed(2);
+    document.getElementById("successPayment").textContent = payment;
+
+    document.getElementById("orderSuccessScreen")
+        .classList.add("show");
+
+    playOrderSuccessSound();
+}
+

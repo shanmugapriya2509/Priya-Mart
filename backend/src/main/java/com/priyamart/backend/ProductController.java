@@ -1,14 +1,21 @@
 
 package com.priyamart.backend;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class ProductController {
@@ -140,4 +147,86 @@ public class ProductController {
         return ResponseEntity.ok(
             Map.of("message", "Product deleted successfully"));
     }
+    
+@PostMapping("/api/seller/products/{id}/images")
+public ResponseEntity<?> uploadProductImages(
+        @PathVariable Integer id,
+        @RequestParam("files") MultipartFile[] files,
+        HttpServletRequest request) throws IOException {
+
+    Long sellerId = getSellerId(request);
+
+    if (sellerId == null) {
+        return ResponseEntity.status(403).body(
+            Map.of("message", "Seller login required")
+        );
+    }
+
+    Product product = productRepository.findById(id).orElse(null);
+
+    if (product == null) {
+        return ResponseEntity.status(404).body(
+            Map.of("message", "Product not found")
+        );
+    }
+
+    if (!sellerId.equals(product.getSellerId())) {
+        return ResponseEntity.status(403).body(
+            Map.of("message", "Access denied")
+        );
+    }
+
+    if (files == null || files.length == 0 ||
+        files.length > 5) {
+        return ResponseEntity.badRequest().body(
+            Map.of("message", "Select 1 to 5 images")
+        );
+    }
+
+    Path folder = Paths.get("uploads", "products")
+            .toAbsolutePath().normalize();
+
+    Files.createDirectories(folder);
+
+    List<String> imageUrls = new ArrayList<>();
+
+    for (MultipartFile file : files) {
+
+        String contentType = file.getContentType();
+
+        if (file.isEmpty() ||
+            file.getSize() > 2 * 1024 * 1024 ||
+            contentType == null ||
+            !List.of("image/jpeg", "image/png", "image/webp")
+                 .contains(contentType)) {
+
+            return ResponseEntity.badRequest().body(
+                Map.of("message", "Invalid image file")
+            );
+        }
+
+        String extension = switch (contentType) {
+            case "image/png" -> ".png";
+            case "image/webp" -> ".webp";
+            default -> ".jpg";
+        };
+
+        String filename = UUID.randomUUID() + extension;
+        Path destination = folder.resolve(filename);
+
+        Files.copy(file.getInputStream(), destination);
+
+        imageUrls.add("/uploads/products/" + filename);
+    }
+
+    product.setImages(imageUrls);
+    product.setImage(imageUrls.get(0));
+
+    productRepository.save(product);
+
+    return ResponseEntity.ok(
+        Map.of("images", imageUrls)
+    );
+}
+
 }
